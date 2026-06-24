@@ -1,0 +1,26 @@
+seed: 1337
+
+data:
+  input_path: data/raw/input.txt
+
+model:
+  vocal_size: null
+  block_size: 128
+  n_layer: 4
+  n_head: 4
+  n_embd: 128
+  dropout: 0.1
+
+train:
+  batch_size: 64
+  max_iters: 3000
+  eval_iterval: 300
+  eval_iters: 100
+  learning_rate: 0.0003
+  weight_decay: 0.1
+  device: cuda
+
+generate:
+  max_new_tokens: 300
+  temperature: 0.8
+  top_k: 40

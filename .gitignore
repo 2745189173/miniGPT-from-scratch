@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+
+data/raw/
+data/processed/
+
+experiments/checkpoints/
+experiments/loss_curves/
+experiments/generation_samples/
+experiments/abalation_results/
+
+*.pt
+*.pth
+*.ckpt
+.DS_Store
