@@ -15,3 +15,6 @@ experiments/abalation_results/
 *.pth
 *.ckpt
 .DS_Store
+
+AGENTS.md
+transformer_architecture.svg
