@@ -5,22 +5,26 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from src.block import TransformerBlock
+
 
 @dataclass
 class GPTConfig:
     vocab_size: int
     block_size: int
     n_embd: int
+    num_heads: int
+    num_layers: int
     dropout: float = 0.1
 
 class GPTLanguageModel(nn.Module):
     """
-    Minimal GPT-style language model skeleton.
+    Decoder-only GPT-style language model.
     
     Current version:
-    token embedding + position embedding + LM head
-    
-    Attention and Transformer blocks will be added later.
+    token embedding + position embedding
+    + stacked Transformer blocks
+    + final LayerNorm + language-modeling head
     """
 
     def __init__(self, config: GPTConfig):
@@ -38,6 +42,20 @@ class GPTLanguageModel(nn.Module):
         )  # weight[block_size, n_embd]
 
         self.dropout = nn.Dropout(config.dropout)
+
+        self.blocks = nn.Sequential(
+            *[
+                TransformerBlock(
+                    n_embd=config.n_embd,
+                    num_heads=config.num_heads,
+                    block_size=config.block_size,
+                    dropout=config.dropout,
+                )
+                for _ in range(config.num_layers)
+            ]
+        )
+
+        self.final_ln = nn.LayerNorm(config.n_embd)
 
         self.lm_head = nn.Linear(
             in_features=config.n_embd,
@@ -72,6 +90,8 @@ class GPTLanguageModel(nn.Module):
 
         x = token_emb + pos_emb  # [B, T, n_embd]
         x = self.dropout(x)  # [B, T, n_embd]
+        x = self.blocks(x)  # [B, T, n_embd]
+        x = self.final_ln(x)  # [B, T, n_embd]
 
         logits = self.lm_head(x)  # [B, T, vocab_size]
         

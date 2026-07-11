@@ -22,9 +22,16 @@ def main():
         vocab_size=tokenizer.vocab_size,
         block_size=8,
         n_embd=32,
+        num_heads=4,
+        num_layers=2,
         dropout=0.1,
     )
     model = GPTLanguageModel(config).to(device)
+    print("num Transformer blocks:", len(model.blocks))
+
+    assert len(model.blocks) == config.num_layers, (
+        "Model should contain config.num_layers Transformer blocks."
+    )
 
     x, y = get_batch(
         data=train_data,
@@ -58,7 +65,9 @@ def main():
         "Loss should be None when targets are not provided."
     )
 
-    print("\ncheck passed: model forward shape and loss are correct.")
+    print(
+        "\ncheck passed: Transformer model forward shape and loss are correct."
+    )
 
 
 if __name__ == "__main__":

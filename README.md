@@ -4,19 +4,25 @@ A from-scratch implementation of a small Decoder-only Transformer language model
 
 ## Current Version
 
-`v0.1` is a minimal character-level language modeling baseline.
+`v0.2` implements the complete Decoder-only Transformer architecture.
 
 It includes:
 
 - character-level tokenizer
 - dataset and batch construction
-- token embedding
-- learned positional embedding
+- token and learned positional embeddings
+- single-head causal self-attention
+- multi-head causal self-attention
+- pre-norm Transformer blocks
+- residual connections
+- position-wise feed-forward networks
+- stacked Transformer blocks
+- final LayerNorm
 - language-modeling head
 - next-token cross-entropy loss
-- sanity checks for data and model forward pass
+- modular sanity checks for data, attention, blocks, and model forward pass
 
-It does not yet include Transformer blocks, causal self-attention, multi-head attention, or text generation.
+Training and autoregressive text generation are not implemented yet.
 
 ## Project Goal
 
@@ -39,9 +45,9 @@ This project aims to implement the core mechanisms of GPT-style language models 
 - [x] Character-level tokenizer
 - [x] Dataset and batch construction
 - [x] Minimal language model baseline
-- [ ] Causal self-attention
-- [ ] Multi-head attention
-- [ ] Transformer block
+- [x] Causal self-attention
+- [x] Multi-head attention
+- [x] Transformer block
 - [ ] Training loop
 - [ ] Loss curve visualization
 - [ ] Decoding strategy comparison
