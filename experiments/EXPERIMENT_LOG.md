@@ -227,6 +227,33 @@ And them in overs, and the now of you so. Ahave you hearns;
 - Local artifacts: `e009_shakespeare_depth4.pt`, `e009_shakespeare_depth4.json`, and `e009_shakespeare_depth4.png` in their respective ignored experiment directories.
 - Next decision: stop pure capacity scaling temporarily and run an activation-function ablation, replacing ReLU with GELU to more closely match GPT-style feed-forward networks.
 
+## E010 - GELU Activation Ablation
+
+- Date: 2026-07-12
+- Purpose: compare GPT-style GELU against the existing ReLU FeedForward activation while holding all other conditions fixed.
+- Corpus: Tiny Shakespeare, 1,115,394 characters, vocabulary size 65.
+- Model: unchanged from E009 except for GELU activation: block size 64, 4 layers, 4 heads, embedding size 128, dropout 0.1.
+- Training: from scratch for 6,000 steps, batch size 32, AdamW, learning rate 0.0003, weight decay 0.1, seed 1337.
+- Parameters: 816,705, identical to E009 because the activation function has no learned parameters.
+- Best checkpoint: step 6,000, train loss 1.5307, validation loss 1.6994, approximate validation perplexity 5.47.
+- Comparison with E009: validation loss improved from 1.7097 to 1.6994 (0.60% lower), while approximate perplexity improved from 5.53 to 5.47 (1.03% lower).
+- Curve interpretation: GELU produces a small but consistent improvement under fixed conditions. Validation loss reaches its best at the final evaluation without sustained deterioration.
+- Generation settings: prompt `the`, seed 1337, temperature 0.8, top-k 20, 300 new tokens.
+- Generation sample:
+
+```text
+the wind if thy cowing to life
+the dispoker expeecanting to me?
+I'll such him fould word. What that a fraw you had
+fall to my must of the cause of me mine dill,
+We misters not not time in overs, and the news!
+```
+
+- Generation interpretation: questions, contractions, punctuation, speaker-like labels, and sentence continuity remain strong; invented words and semantic errors persist.
+- Engineering result: activation is now stored in `GPTConfig` and checkpoints. Legacy checkpoints without the field default to ReLU, while E010 explicitly records GELU. E009/ReLU and E010/GELU loading were both verified.
+- Local artifacts: `e010_shakespeare_gelu.pt`, `e010_shakespeare_gelu.json`, and `e010_shakespeare_gelu.png` in their respective ignored experiment directories.
+- Next decision: retain GELU and evaluate another standard GPT technique, token-embedding/language-head weight tying, as a controlled parameter-sharing ablation.
+
 ## Recording Policy
 
 Record an experiment when at least one meaningful variable or outcome changes, such as:

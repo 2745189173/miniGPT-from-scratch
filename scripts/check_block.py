@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 
 import torch
+import torch.nn as nn
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(PROJECT_ROOT))
@@ -22,7 +23,12 @@ def main():
     feed_forward = FeedForward(
         n_embd=n_embd,
         dropout=dropout,
+        activation="gelu",
     ).to(device)
+    assert any(
+        isinstance(module, nn.GELU)
+        for module in feed_forward.modules()
+    ), "FeedForward should use GELU activation."
 
     x = torch.randn(batch_size, seq_len, n_embd, device=device)
     out = feed_forward(x)
@@ -44,6 +50,7 @@ def main():
         num_heads=num_heads,
         block_size=block_size,
         dropout=dropout,
+        activation="gelu",
     ).to(device)
 
     block_out = transformer_block(x)

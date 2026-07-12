@@ -94,7 +94,15 @@ def load_resume_state(
 
     expected_model_config = asdict(model_config)
 
-    if checkpoint["model_config"] != expected_model_config:
+    checkpoint_model_config = checkpoint[
+        "model_config"
+    ].copy()
+    checkpoint_model_config.setdefault(
+        "activation",
+        "relu",
+    )
+
+    if checkpoint_model_config != expected_model_config:
         raise ValueError(
             "Resume checkpoint model configuration does not "
             "match the current model configuration."
@@ -174,6 +182,7 @@ def main():
         n_embd=model_config["n_embd"],
         num_heads=model_config["n_head"],
         num_layers=model_config["n_layer"],
+        activation=model_config.get("activation", "relu"),
         dropout=model_config["dropout"],
     )
 

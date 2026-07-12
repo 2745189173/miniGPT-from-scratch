@@ -24,6 +24,7 @@ def main():
         n_embd=32,
         num_heads=4,
         num_layers=2,
+        activation="gelu",
         dropout=0.1,
     )
     model = GPTLanguageModel(config).to(device)

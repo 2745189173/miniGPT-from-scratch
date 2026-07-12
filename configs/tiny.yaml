@@ -1,7 +1,7 @@
 seed: 1337
 
 experiment:
-  run_name: e009_shakespeare_depth4
+  run_name: e010_shakespeare_gelu
 
 data:
   input_path: data/raw/input.txt
@@ -11,6 +11,7 @@ model:
   n_layer: 4
   n_head: 4
   n_embd: 128
+  activation: gelu
   dropout: 0.1
 
 train:

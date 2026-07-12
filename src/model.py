@@ -15,6 +15,7 @@ class GPTConfig:
     n_embd: int
     num_heads: int
     num_layers: int
+    activation: str = "relu"
     dropout: float = 0.1
 
 class GPTLanguageModel(nn.Module):
@@ -49,6 +50,7 @@ class GPTLanguageModel(nn.Module):
                     n_embd=config.n_embd,
                     num_heads=config.num_heads,
                     block_size=config.block_size,
+                    activation=config.activation,
                     dropout=config.dropout,
                 )
                 for _ in range(config.num_layers)
