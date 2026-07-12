@@ -1,13 +1,13 @@
 seed: 1337
 
 experiment:
-  run_name: e003_shakespeare_3000_steps
+  run_name: e006_shakespeare_block64
 
 data:
   input_path: data/raw/input.txt
 
 model:
-  block_size: 16
+  block_size: 64
   n_layer: 2
   n_head: 4
   n_embd: 64
@@ -26,4 +26,4 @@ generate:
   prompt: "the"
   max_new_tokens: 300
   temperature: 0.8
-  top_k: 40
+  top_k: 20

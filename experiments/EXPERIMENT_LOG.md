@@ -117,6 +117,32 @@ top-k 40: MEXENDHate awick my thand a wize mus ...
 - Local artifact: `experiments/generation_samples/e005_top_k_comparison.json`.
 - Next decision: increase context length before model width/depth, because block size 16 restricts the model to approximately 16 characters of usable context.
 
+## E006 - Context Length 64
+
+- Date: 2026-07-12
+- Purpose: isolate the effect of increasing context length from 16 to 64 characters.
+- Corpus: Tiny Shakespeare, 1,115,394 characters, vocabulary size 65.
+- Model: block size 64, 2 layers, 4 heads, embedding size 64, dropout 0.1. Width and depth are unchanged from E003.
+- Training: 3,000 steps, batch size 32, AdamW, learning rate 0.0003, weight decay 0.1, seed 1337.
+- Parameters: 112,193, an increase of 3,072 learned positional-embedding parameters over E003.
+- Best checkpoint: step 3,000, train loss 2.1819, validation loss 2.1918, approximate validation perplexity 8.95.
+- Comparison with E003: E003 reached validation loss 2.1292 and perplexity 8.41. At 3,000 steps, E006 validation loss is 2.94% higher.
+- Curve interpretation: train and validation losses remain close, and E006 reaches its best validation result at the final evaluation. The model has not shown sustained overfitting or clear convergence, so the 3,000-step comparison is inconclusive rather than evidence that longer context is harmful.
+- Generation settings: prompt `the`, seed 1337, temperature 0.8, top-k 20, 300 new tokens.
+- Generation sample:
+
+```text
+the wint wand incerd,
+The lay be mad ser bube to tanthend my dall ands ard thie us hithe.
+
+F CORNDHININGE:
+Har he fald to horm he offor tof is he me mil;
+```
+
+- Generation interpretation: the sample has stable lines, a speaker-like label, punctuation, and less obvious repetition, but one sample cannot establish a context-length advantage.
+- Local artifacts: `e006_shakespeare_block64.pt`, `e006_shakespeare_block64.json`, and `e006_shakespeare_block64.png` in their respective ignored experiment directories.
+- Next decision: add checkpoint resume support and continue the E006 training trajectory to 6,000 total steps before judging block size 64.
+
 ## Recording Policy
 
 Record an experiment when at least one meaningful variable or outcome changes, such as:
