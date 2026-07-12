@@ -13,10 +13,7 @@ from src.model import GPTConfig, GPTLanguageModel
 
 def load_checkpoint(run_name: str):
     return torch.load(
-        PROJECT_ROOT
-        / "experiments"
-        / "checkpoints"
-        / f"{run_name}.pt",
+        PROJECT_ROOT / "experiments" / "checkpoints" / f"{run_name}.pt",
         map_location="cpu",
         weights_only=False,
     )
@@ -34,7 +31,6 @@ def parameter_count(checkpoint) -> int:
 def main():
     with open(
         PROJECT_ROOT / "experiments" / "tokenizer_comparison.json",
-        "r",
         encoding="utf-8",
     ) as file:
         tokenizer_metrics = json.load(file)
@@ -43,15 +39,10 @@ def main():
     bpe_checkpoint = load_checkpoint("e012_shakespeare_bpe512")
 
     characters_per_bpe_token = (
-        tokenizer_metrics["text_characters"]
-        / tokenizer_metrics["bpe_token_count"]
+        tokenizer_metrics["text_characters"] / tokenizer_metrics["bpe_token_count"]
     )
     char_bpc = char_checkpoint["val_loss"] / math.log(2)
-    bpe_bpc = (
-        bpe_checkpoint["val_loss"]
-        / math.log(2)
-        / characters_per_bpe_token
-    )
+    bpe_bpc = bpe_checkpoint["val_loss"] / math.log(2) / characters_per_bpe_token
 
     result = {
         "character_baseline": {
@@ -70,9 +61,7 @@ def main():
             "validation_loss_per_token": bpe_checkpoint["val_loss"],
             "estimated_bits_per_character": bpe_bpc,
         },
-        "token_count_reduction": tokenizer_metrics[
-            "token_count_reduction"
-        ],
+        "token_count_reduction": tokenizer_metrics["token_count_reduction"],
         "context_coverage_multiplier": (
             tokenizer_metrics["estimated_bpe_context_characters"]
             / tokenizer_metrics["char_context_characters"]
@@ -80,9 +69,7 @@ def main():
         "estimated_bpc_improvement": 1 - bpe_bpc / char_bpc,
     }
 
-    output_path = (
-        PROJECT_ROOT / "experiments" / "final_comparison.json"
-    )
+    output_path = PROJECT_ROOT / "experiments" / "final_comparison.json"
     with open(output_path, "w", encoding="utf-8") as file:
         json.dump(result, file, indent=2)
 

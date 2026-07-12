@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Download Tiny Shakespeare
+        run: python scripts/download_data.py
+
+      - name: Lint and format check
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Run focused checks
+        run: |
+          python scripts/check_data.py
+          python scripts/check_bpe.py
+          python scripts/check_tokenizer_integration.py
+          python scripts/check_attention.py
+          python scripts/check_block.py
+          python scripts/check_model.py
+          python scripts/check_gradients.py

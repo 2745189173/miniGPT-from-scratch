@@ -8,6 +8,7 @@ sys.path.append(str(PROJECT_ROOT))
 
 from src.attention import CausalSelfAttention, MultiHeadAttention
 
+
 def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -22,7 +23,7 @@ def main():
         n_embd=n_embd,
         head_size=head_size,
         block_size=block_size,
-        dropout=dropout,        
+        dropout=dropout,
     ).to(device)
 
     x = torch.randn(batch_size, seq_len, n_embd, device=device)
@@ -62,8 +63,9 @@ def main():
         seq_len,
         n_embd,
     ), "Multi-head attention output should have shape [batch_size, seq_len, n_embd]."
-    
+
     print("\ncheck passed: single-head and multi-head causal attention are correct.")
 
+
 if __name__ == "__main__":
-    main()                
+    main()

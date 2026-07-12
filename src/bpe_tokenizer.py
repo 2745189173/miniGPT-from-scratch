@@ -1,16 +1,15 @@
 import json
 from collections import Counter
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
-
-Pair = Tuple[int, int]
+Pair = tuple[int, int]
 
 
 def merge_pair(
-    token_ids: List[int],
+    token_ids: list[int],
     pair: Pair,
     new_token_id: int,
-) -> List[int]:
+) -> list[int]:
     merged_ids = []
     index = 0
 
@@ -40,10 +39,9 @@ class BPETokenizer:
     """
 
     def __init__(self):
-        self.merges: List[Pair] = []
-        self.vocab: Dict[int, bytes] = {
-            token_id: bytes([token_id])
-            for token_id in range(256)
+        self.merges: list[Pair] = []
+        self.vocab: dict[int, bytes] = {
+            token_id: bytes([token_id]) for token_id in range(256)
         }
         self.vocab_size = 256
 
@@ -53,26 +51,19 @@ class BPETokenizer:
         target_vocab_size: int,
     ) -> None:
         if target_vocab_size < 256:
-            raise ValueError(
-                "Byte-level BPE vocab size must be at least 256."
-            )
+            raise ValueError("Byte-level BPE vocab size must be at least 256.")
 
         token_ids = list(text.encode("utf-8"))
         num_merges = target_vocab_size - 256
 
         self.merges = []
-        self.vocab = {
-            token_id: bytes([token_id])
-            for token_id in range(256)
-        }
+        self.vocab = {token_id: bytes([token_id]) for token_id in range(256)}
 
         for merge_index in range(num_merges):
             if len(token_ids) < 2:
                 break
 
-            pair_counts = Counter(
-                zip(token_ids, token_ids[1:])
-            )
+            pair_counts = Counter(zip(token_ids, token_ids[1:], strict=False))
 
             if not pair_counts:
                 break
@@ -96,13 +87,12 @@ class BPETokenizer:
 
             self.merges.append(best_pair)
             self.vocab[new_token_id] = (
-                self.vocab[best_pair[0]]
-                + self.vocab[best_pair[1]]
+                self.vocab[best_pair[0]] + self.vocab[best_pair[1]]
             )
 
         self.vocab_size = 256 + len(self.merges)
 
-    def encode(self, text: str) -> List[int]:
+    def encode(self, text: str) -> list[int]:
         token_ids = list(text.encode("utf-8"))
 
         for merge_index, pair in enumerate(self.merges):
@@ -115,22 +105,13 @@ class BPETokenizer:
 
         return token_ids
 
-    def decode(self, ids: List[int]) -> str:
-        unknown_ids = [
-            token_id
-            for token_id in ids
-            if token_id not in self.vocab
-        ]
+    def decode(self, ids: list[int]) -> str:
+        unknown_ids = [token_id for token_id in ids if token_id not in self.vocab]
 
         if unknown_ids:
-            raise ValueError(
-                f"Unknown BPE token ids: {unknown_ids}"
-            )
+            raise ValueError(f"Unknown BPE token ids: {unknown_ids}")
 
-        byte_sequence = b"".join(
-            self.vocab[token_id]
-            for token_id in ids
-        )
+        byte_sequence = b"".join(self.vocab[token_id] for token_id in ids)
 
         return byte_sequence.decode(
             "utf-8",
@@ -141,34 +122,25 @@ class BPETokenizer:
         with open(path, "w", encoding="utf-8") as file:
             json.dump(self.to_state(), file, indent=2)
 
-    def to_state(self) -> Dict[str, Any]:
+    def to_state(self) -> dict[str, Any]:
         return {
             "tokenizer_type": "byte_bpe",
             "vocab_size": self.vocab_size,
-            "merges": [
-                [left_id, right_id]
-                for left_id, right_id in self.merges
-            ],
+            "merges": [[left_id, right_id] for left_id, right_id in self.merges],
         }
 
     @classmethod
-    def from_state(cls, data: Dict[str, Any]):
+    def from_state(cls, data: dict[str, Any]):
         if data.get("tokenizer_type") != "byte_bpe":
-            raise ValueError(
-                "State does not contain a byte-level BPE tokenizer."
-            )
+            raise ValueError("State does not contain a byte-level BPE tokenizer.")
 
         tokenizer = cls()
-        tokenizer.merges = [
-            (left_id, right_id)
-            for left_id, right_id in data["merges"]
-        ]
+        tokenizer.merges = [(left_id, right_id) for left_id, right_id in data["merges"]]
 
         for merge_index, pair in enumerate(tokenizer.merges):
             new_token_id = 256 + merge_index
             tokenizer.vocab[new_token_id] = (
-                tokenizer.vocab[pair[0]]
-                + tokenizer.vocab[pair[1]]
+                tokenizer.vocab[pair[0]] + tokenizer.vocab[pair[1]]
             )
 
         tokenizer.vocab_size = len(tokenizer.vocab)
@@ -180,7 +152,7 @@ class BPETokenizer:
 
     @classmethod
     def load(cls, path: str):
-        with open(path, "r", encoding="utf-8") as file:
+        with open(path, encoding="utf-8") as file:
             data = json.load(file)
 
         return cls.from_state(data)

@@ -25,10 +25,9 @@ def main():
         dropout=dropout,
         activation="gelu",
     ).to(device)
-    assert any(
-        isinstance(module, nn.GELU)
-        for module in feed_forward.modules()
-    ), "FeedForward should use GELU activation."
+    assert any(isinstance(module, nn.GELU) for module in feed_forward.modules()), (
+        "FeedForward should use GELU activation."
+    )
 
     x = torch.randn(batch_size, seq_len, n_embd, device=device)
     out = feed_forward(x)
@@ -37,9 +36,7 @@ def main():
     print("input shape:", x.shape)
     print("output shape:", out.shape)
 
-    assert out.shape == x.shape, (
-        "Feed-forward network must preserve [B, T, n_embd]."
-    )
+    assert out.shape == x.shape, "Feed-forward network must preserve [B, T, n_embd]."
 
     assert torch.isfinite(out).all(), (
         "Feed-forward output should contain only finite values."
@@ -57,9 +54,7 @@ def main():
 
     print("Transformer block output shape:", block_out.shape)
 
-    assert block_out.shape == x.shape, (
-        "Transformer block must preserve [B, T, n_embd]."
-    )
+    assert block_out.shape == x.shape, "Transformer block must preserve [B, T, n_embd]."
 
     assert torch.isfinite(block_out).all(), (
         "Transformer block output should contain only finite values."

@@ -25,19 +25,16 @@ class CausalSelfAttention(nn.Module):
 
         self.dropout = nn.Dropout(dropout)
 
-        self.register_buffer(
-            "tril",
-            torch.tril(torch.ones(block_size, block_size))
-        )
+        self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         batch_size, seq_len, n_embd = x.shape
 
-        k = self.key(x)   # [B, T, head_size]
+        k = self.key(x)  # [B, T, head_size]
         q = self.query(x)  # [B, T, head_size]
         v = self.value(x)  # [B, T, head_size]
 
-        scores = q @ k.transpose(-2, -1) # [B, T, T]
+        scores = q @ k.transpose(-2, -1)  # [B, T, T]
         scores = scores / math.sqrt(k.shape[-1])
 
         scores = scores.masked_fill(
@@ -65,18 +62,16 @@ class MultiHeadAttention(nn.Module):
     """
 
     def __init__(
-            self,
-            n_embd: int,
-            num_heads: int,
-            block_size: int,
-            dropout: float,
+        self,
+        n_embd: int,
+        num_heads: int,
+        block_size: int,
+        dropout: float,
     ):
 
         super().__init__()
 
-        assert n_embd % num_heads == 0, (
-            "n_embd must be divisible by num_heads."
-        )
+        assert n_embd % num_heads == 0, "n_embd must be divisible by num_heads."
 
         head_size = n_embd // num_heads
 
@@ -86,7 +81,7 @@ class MultiHeadAttention(nn.Module):
                     n_embd=n_embd,
                     head_size=head_size,
                     block_size=block_size,
-                    dropout=dropout
+                    dropout=dropout,
                 )
                 for _ in range(num_heads)
             ]

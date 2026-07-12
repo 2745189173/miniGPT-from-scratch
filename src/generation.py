@@ -1,5 +1,3 @@
-from typing import Optional
-
 import torch
 
 from src.model import GPTLanguageModel
@@ -11,7 +9,7 @@ def generate(
     idx: torch.Tensor,
     max_new_tokens: int,
     temperature: float = 1.0,
-    top_k: Optional[int] = None,
+    top_k: int | None = None,
 ) -> torch.Tensor:
     if temperature <= 0:
         raise ValueError("temperature must be greater than zero.")
@@ -19,7 +17,7 @@ def generate(
     model.eval()
 
     for _ in range(max_new_tokens):
-        idx_context = idx[:, -model.config.block_size:]
+        idx_context = idx[:, -model.config.block_size :]
 
         logits, _ = model(idx_context)
         logits = logits[:, -1, :]

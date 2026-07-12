@@ -15,7 +15,6 @@ from src.tokenizer_factory import build_tokenizer
 def main():
     with open(
         PROJECT_ROOT / "configs" / "tiny.yaml",
-        "r",
         encoding="utf-8",
     ) as file:
         config_data = yaml.safe_load(file)
@@ -40,14 +39,10 @@ def main():
         "token_count_reduction": 1 - bpe_tokens / char_tokens,
         "bpe_bytes_per_token": byte_count / bpe_tokens,
         "char_context_characters": block_size,
-        "estimated_bpe_context_characters": (
-            block_size * char_count / bpe_tokens
-        ),
+        "estimated_bpe_context_characters": (block_size * char_count / bpe_tokens),
     }
 
-    output_path = (
-        PROJECT_ROOT / "experiments" / "tokenizer_comparison.json"
-    )
+    output_path = PROJECT_ROOT / "experiments" / "tokenizer_comparison.json"
     with open(output_path, "w", encoding="utf-8") as file:
         json.dump(result, file, indent=2)
 

@@ -1,28 +1,24 @@
 import json
-from typing import Any, Dict, List, Protocol
+from typing import Any, Protocol
 
 
 class Tokenizer(Protocol):
     vocab_size: int
 
-    def encode(self, text: str) -> List[int]:
-        ...
+    def encode(self, text: str) -> list[int]: ...
 
-    def decode(self, ids: List[int]) -> str:
-        ...
+    def decode(self, ids: list[int]) -> str: ...
 
-    def save(self, path: str) -> None:
-        ...
+    def save(self, path: str) -> None: ...
 
-    def to_state(self) -> Dict[str, Any]:
-        ...
+    def to_state(self) -> dict[str, Any]: ...
 
 
 class CharTokenizer:
     """
     A simple character-level tokenizer.
 
-    It maps each unique character in the training text to an interger token id.
+    It maps each unique character in the training text to an integer token id.
     This is not how production LLM tokenizers work, but it is ideal for learning
     the core language modeling pipeline.
     """
@@ -34,14 +30,14 @@ class CharTokenizer:
         self.stoi = {ch: i for i, ch in enumerate(chars)}
         self.itos = {i: ch for i, ch in enumerate(chars)}
 
-    def encode(self, text: str) -> List[int]:
+    def encode(self, text: str) -> list[int]:
         """Convert a string into a list of token ids."""
         return [self.stoi[ch] for ch in text]
-    
-    def decode(self, ids: List[int]) -> str:
+
+    def decode(self, ids: list[int]) -> str:
         """Convert a list of token ids into a string"""
         return "".join([self.itos[i] for i in ids])
-    
+
     def save(self, path: str) -> None:
         """Save tokenizer vocabulary to a JSON file"""
         with open(path, "w", encoding="utf-8") as f:
@@ -52,7 +48,7 @@ class CharTokenizer:
                 indent=2,
             )
 
-    def to_state(self) -> Dict[str, Any]:
+    def to_state(self) -> dict[str, Any]:
         return {
             "tokenizer_type": "char",
             "stoi": self.stoi,
@@ -61,19 +57,17 @@ class CharTokenizer:
         }
 
     @classmethod
-    def from_state(cls, data: Dict[str, Any]):
+    def from_state(cls, data: dict[str, Any]):
         tokenizer = cls.__new__(cls)
         tokenizer.stoi = data["stoi"]
-        tokenizer.itos = {
-            int(k): v for k, v in data["itos"].items()
-        }
+        tokenizer.itos = {int(k): v for k, v in data["itos"].items()}
         tokenizer.vocab_size = data["vocab_size"]
         return tokenizer
 
     @classmethod
     def load(cls, path: str):
         """Load tokenizer vocabulary from a JSON file."""
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
         return cls.from_state(data)

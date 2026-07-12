@@ -55,9 +55,7 @@ def estimate_loss(
             _, loss = model(x, y)
 
             if loss is None:
-                raise RuntimeError(
-                    "Model did not return loss during evaluation."
-                )
+                raise RuntimeError("Model did not return loss during evaluation.")
 
             split_losses[index] = loss.item()
 
@@ -66,6 +64,7 @@ def estimate_loss(
     model.train()
     return losses
 
+
 def load_resume_state(
     model,
     optimizer,
@@ -73,29 +72,15 @@ def load_resume_state(
     resume_run,
     device,
 ):
-    checkpoint_path = (
-        PROJECT_ROOT
-        / "experiments"
-        / "checkpoints"
-        / f"{resume_run}.pt"
-    )
+    checkpoint_path = PROJECT_ROOT / "experiments" / "checkpoints" / f"{resume_run}.pt"
 
-    history_path = (
-        PROJECT_ROOT
-        / "experiments"
-        / "loss_curves"
-        / f"{resume_run}.json"
-    )
+    history_path = PROJECT_ROOT / "experiments" / "loss_curves" / f"{resume_run}.json"
 
     if not checkpoint_path.exists():
-        raise FileNotFoundError(
-            f"Resume checkpoint not found: {checkpoint_path}"
-        )
+        raise FileNotFoundError(f"Resume checkpoint not found: {checkpoint_path}")
 
     if not history_path.exists():
-        raise FileNotFoundError(
-            f"Resume loss history not found: {history_path}"
-        )
+        raise FileNotFoundError(f"Resume loss history not found: {history_path}")
 
     checkpoint = torch.load(
         checkpoint_path,
@@ -105,9 +90,7 @@ def load_resume_state(
 
     expected_model_config = asdict(model_config)
 
-    checkpoint_model_config = checkpoint[
-        "model_config"
-    ].copy()
+    checkpoint_model_config = checkpoint["model_config"].copy()
     checkpoint_model_config.setdefault(
         "activation",
         "relu",
@@ -124,31 +107,21 @@ def load_resume_state(
         )
 
     model.load_state_dict(checkpoint["model_state_dict"])
-    optimizer.load_state_dict(
-        checkpoint["optimizer_state_dict"]
-    )
+    optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
 
-    with open(history_path, "r", encoding="utf-8") as file:
+    with open(history_path, encoding="utf-8") as file:
         loss_history = json.load(file)
 
     if "cpu_rng_state" in checkpoint:
-        torch.set_rng_state(
-            checkpoint["cpu_rng_state"].cpu()
-        )
+        torch.set_rng_state(checkpoint["cpu_rng_state"].cpu())
     else:
         print(
             "warning: checkpoint has no CPU RNG state; "
             "continuation will not be bitwise reproducible."
         )
 
-    if (
-        device == "cuda"
-        and checkpoint.get("cuda_rng_state_all") is not None
-    ):
-        cuda_rng_states = [
-            state.cpu()
-            for state in checkpoint["cuda_rng_state_all"]
-        ]
+    if device == "cuda" and checkpoint.get("cuda_rng_state_all") is not None:
+        cuda_rng_states = [state.cpu() for state in checkpoint["cuda_rng_state_all"]]
         torch.cuda.set_rng_state_all(cuda_rng_states)
 
     print("resumed from:", checkpoint_path)
@@ -157,13 +130,14 @@ def load_resume_state(
 
     return checkpoint, loss_history
 
+
 def main():
     args = parse_args()
     config_path = Path(args.config)
     if not config_path.is_absolute():
         config_path = PROJECT_ROOT / config_path
 
-    with open(config_path, "r", encoding="utf-8") as file:
+    with open(config_path, encoding="utf-8") as file:
         config_data = yaml.safe_load(file)
 
     seed = config_data["seed"]
@@ -174,8 +148,7 @@ def main():
     resume_from = train_config.get("resume_from")
 
     if not run_name or not all(
-        character.isalnum() or character in {"-", "_"}
-        for character in run_name
+        character.isalnum() or character in {"-", "_"} for character in run_name
     ):
         raise ValueError(
             "experiment.run_name may contain only letters, numbers, "
@@ -217,10 +190,7 @@ def main():
         weight_decay=train_config["weight_decay"],
     )
 
-    total_params = sum(
-        parameter.numel()
-        for parameter in model.parameters()
-    )
+    total_params = sum(parameter.numel() for parameter in model.parameters())
 
     checkpoint_dir = PROJECT_ROOT / "experiments" / "checkpoints"
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
@@ -246,13 +216,9 @@ def main():
 
         resume_checkpoint["run_name"] = run_name
         resume_checkpoint["run_config"] = config_data
-        resume_checkpoint["cpu_rng_state"] = (
-            torch.get_rng_state()
-        )
+        resume_checkpoint["cpu_rng_state"] = torch.get_rng_state()
         resume_checkpoint["cuda_rng_state_all"] = (
-            torch.cuda.get_rng_state_all()
-            if device == "cuda"
-            else None
+            torch.cuda.get_rng_state_all() if device == "cuda" else None
         )
 
         torch.save(
@@ -274,15 +240,9 @@ def main():
     eval_interval = train_config["eval_interval"]
 
     for step in range(start_step, max_iters + 1):
-        is_resume_boundary = (
-            resume_from is not None
-            and step == start_step
-        )
+        is_resume_boundary = resume_from is not None and step == start_step
 
-        should_evaluate = (
-            step % eval_interval == 0
-            or step == max_iters
-        )
+        should_evaluate = step % eval_interval == 0 or step == max_iters
 
         if should_evaluate and not is_resume_boundary:
             losses = estimate_loss(
@@ -323,9 +283,7 @@ def main():
                     "run_config": config_data,
                     "cpu_rng_state": torch.get_rng_state(),
                     "cuda_rng_state_all": (
-                        torch.cuda.get_rng_state_all()
-                        if device == "cuda"
-                        else None
+                        torch.cuda.get_rng_state_all() if device == "cuda" else None
                     ),
                 }
 
@@ -349,9 +307,7 @@ def main():
         _, loss = model(x, y)
 
         if loss is None:
-            raise RuntimeError(
-                "Model did not return loss during training."
-            )
+            raise RuntimeError("Model did not return loss during training.")
 
         optimizer.zero_grad(set_to_none=True)
         loss.backward()

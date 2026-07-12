@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -19,10 +18,11 @@ class GPTConfig:
     tie_weights: bool = False
     dropout: float = 0.1
 
+
 class GPTLanguageModel(nn.Module):
     """
     Decoder-only GPT-style language model.
-    
+
     Current version:
     token embedding + position embedding
     + stacked Transformer blocks
@@ -34,13 +34,11 @@ class GPTLanguageModel(nn.Module):
         self.config = config
 
         self.token_embedding = nn.Embedding(
-            num_embeddings=config.vocab_size,
-            embedding_dim=config.n_embd
+            num_embeddings=config.vocab_size, embedding_dim=config.n_embd
         )  # weight[vocab_size, n_embd]
 
         self.position_embedding = nn.Embedding(
-            num_embeddings=config.block_size,
-            embedding_dim=config.n_embd
+            num_embeddings=config.block_size, embedding_dim=config.n_embd
         )  # weight[block_size, n_embd]
 
         self.dropout = nn.Dropout(config.dropout)
@@ -67,21 +65,19 @@ class GPTLanguageModel(nn.Module):
 
         if config.tie_weights:
             with torch.no_grad():
-                self.token_embedding.weight.copy_(
-                    self.lm_head.weight
-                )
+                self.token_embedding.weight.copy_(self.lm_head.weight)
             self.lm_head.weight = self.token_embedding.weight
 
     def forward(
-            self,
-            idx: torch.Tensor,
-            targets: Optional[torch.Tensor] = None,
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        self,
+        idx: torch.Tensor,
+        targets: torch.Tensor | None = None,
+    ) -> tuple[torch.Tensor, torch.Tensor | None]:
         """
         Args:
             idx:token ids, shape [B, T]
             targets: next-token labels, shape [B, T]
-            
+
         Returns:
             logits: shape [B, T, vocab_size]
             loss: cross entropy loss if targets is given
@@ -90,9 +86,10 @@ class GPTLanguageModel(nn.Module):
 
         if seq_len > self.config.block_size:
             raise ValueError(
-                f"Sequence length {seq_len} exceeds block_size {self.config.block_size}."
+                f"Sequence length {seq_len} exceeds block_size "
+                f"{self.config.block_size}."
             )
-        
+
         token_emb = self.token_embedding(idx)  # [B, T, n_embd]
 
         positions = torch.arange(seq_len, device=idx.device)  # [T]
@@ -104,12 +101,14 @@ class GPTLanguageModel(nn.Module):
         x = self.final_ln(x)  # [B, T, n_embd]
 
         logits = self.lm_head(x)  # [B, T, vocab_size]
-        
+
         loss = None
         if targets is not None:
             batch_size, seq_len, vocab_size = logits.shape
 
-            logits_flat = logits.view(batch_size * seq_len, vocab_size)  # [B * T, vocab_size]
+            logits_flat = logits.view(
+                batch_size * seq_len, vocab_size
+            )  # [B * T, vocab_size]
             targets_flat = targets.view(batch_size * seq_len)  # [B * T]
 
             loss = F.cross_entropy(logits_flat, targets_flat)

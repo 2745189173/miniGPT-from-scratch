@@ -1,42 +1,67 @@
 # miniGPT-from-scratch
 
-A from-scratch implementation of a small Decoder-only Transformer language model in PyTorch.
+A small Decoder-only Transformer language model built from first principles in
+PyTorch, including byte-level BPE tokenization, training, resumable checkpoints,
+generation, and controlled experiments.
+
+This repository is an educational implementation and experiment platform. It is
+designed to make GPT internals inspectable; it is not a production chatbot or a
+replacement for a broadly pretrained language model.
 
 ## Current Version
 
-`v1.0` completes the intended learning project: a Decoder-only Transformer with character and byte-level BPE tokenizers, training, resumable checkpoints, generation, controlled experiments, and reproducible documentation.
+`v1.0.1` completes the intended learning scope and public-release polish. The final model is trained on Tiny
+Shakespeare with a learned 512-token byte-level BPE vocabulary.
 
-It includes:
+## Highlights
 
-- character-level tokenizer
-- dataset and batch construction
-- token and learned positional embeddings
-- single-head causal self-attention
-- multi-head causal self-attention
-- pre-norm Transformer blocks
-- residual connections
-- position-wise feed-forward networks
-- stacked Transformer blocks
-- final LayerNorm
-- language-modeling head
-- next-token cross-entropy loss
-- modular sanity checks for data, attention, blocks, and model forward pass
-- YAML-driven AdamW training loop
-- periodic train and validation loss estimation
-- best-validation checkpoint saving and loading
-- autoregressive generation with temperature and top-k sampling
-- run-isolated checkpoints, histories, plots, and generation samples
-- controlled temperature and top-k comparison experiments
-- model/optimizer restoration with continued global step numbering
-- inherited loss histories and CPU/CUDA RNG state saving for resumable runs
-- configurable ReLU/GELU feed-forward activations stored in model checkpoints
-- backward-compatible loading of legacy ReLU checkpoints
-- optional token-embedding/language-head weight tying with shared storage checks
-- backward-compatible loading of legacy untied checkpoints
-- character-level and byte-level BPE tokenizer implementations
-- BPE compression, mixed-language round-trip, save, and load checks
+- deterministic character and byte-level BPE tokenizers implemented from scratch;
+- causal single-head and multi-head self-attention;
+- pre-norm Transformer blocks with residual connections and GELU FeedForward;
+- YAML-driven AdamW training and periodic validation;
+- best-checkpoint saving, optimizer restoration, RNG state, and resume support;
+- autoregressive generation with temperature and top-k sampling;
+- isolated experiment artifacts and twelve documented controlled experiments;
+- backward compatibility for legacy tokenizer, activation, and weight-tying states;
+- focused checks, Ruff lint/format, and GitHub Actions CI.
 
-The final model is trained on Tiny Shakespeare with a learned 512-token byte-level BPE vocabulary.
+## Final Results
+
+| Metric | Character E010 | BPE E012 |
+|---|---:|---:|
+| Vocabulary size | 65 | 512 |
+| Parameters | 816,705 | 931,584 |
+| Corpus tokens | 1,115,394 | 568,210 |
+| Estimated characters per 64-token context | 64.0 | 125.6 |
+| Estimated bits per character | 2.4516 | 2.3374 |
+
+BPE reduced the token count by **49.06%**, nearly doubled effective context
+coverage, and improved estimated bits per character by **4.66%**.
+
+Example output from the final BPE checkpoint:
+
+```text
+they hands that can trumble with laughter,
+Captain is the daughter, hearty of your swork;
+Well I have duke me, and you are a maids the devil'd, and these a fear!
+
+KING RICHARD II:
+Now, go my lord, and can her give me business to his troge about bod,
+```
+
+## Architecture
+
+```text
+UTF-8 text -> byte-level BPE -> token ids
+-> token + learned positional embeddings
+-> 4 x pre-norm Transformer blocks
+   -> 4-head causal self-attention
+   -> GELU FeedForward
+-> final LayerNorm -> LM head -> next-token logits
+```
+
+Final configuration: context 64, 4 layers, 4 heads, embedding width 128,
+dropout 0.1, and 931,584 parameters.
 
 ## Project Goal
 
@@ -102,6 +127,9 @@ The tracked tokenizer artifact is written to:
 artifacts/tokenizers/tiny_shakespeare_bpe_512.json
 ```
 
+Tiny Shakespeare is downloaded from Andrej Karpathy's `char-rnn` repository.
+See [DATA_ATTRIBUTION.md](DATA_ATTRIBUTION.md) for source and usage notes.
+
 ## Validation
 
 Run the focused checks:
@@ -148,6 +176,18 @@ python experiments\final_comparison.py
 
 Checkpoints, histories, plots, and generated samples are local experiment artifacts and are intentionally ignored by git.
 
+## Repository Layout
+
+```text
+src/          model, attention, blocks, tokenizers, and generation
+scripts/      data download, tokenizer training, model training, and checks
+configs/      final BPE and character-baseline configurations
+experiments/  comparisons, plots, generation experiments, and experiment log
+artifacts/    tracked deterministic BPE merge rules
+docs/         Chinese project journey
+report/       final technical report
+```
+
 ## Why this project matters
 
 This project is designed to demonstrate a bottom-up understanding of Decoder-only Transformer language models, rather than simply using existing high-level frameworks.
@@ -169,3 +209,8 @@ experiments/loss_curves/<run_name>.png
 ```
 
 `scripts/generate.py` and `experiments/loss_curves.py` use the active run name from the config. A different recorded curve can also be rendered with `python experiments/loss_curves.py --run-name <run_name>`.
+
+## License
+
+The source code is released under the [MIT License](LICENSE). Dataset attribution
+is documented separately in [DATA_ATTRIBUTION.md](DATA_ATTRIBUTION.md).

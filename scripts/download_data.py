@@ -2,7 +2,6 @@ import argparse
 import urllib.request
 from pathlib import Path
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_URL = (
     "https://raw.githubusercontent.com/karpathy/char-rnn/"

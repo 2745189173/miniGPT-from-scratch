@@ -31,14 +31,9 @@ def main():
 
     model = GPTLanguageModel(config).to(device)
 
-    total_params = sum(
-        parameter.numel()
-        for parameter in model.parameters()
-    )
+    total_params = sum(parameter.numel() for parameter in model.parameters())
     trainable_params = sum(
-        parameter.numel()
-        for parameter in model.parameters()
-        if parameter.requires_grad
+        parameter.numel() for parameter in model.parameters() if parameter.requires_grad
     )
 
     print("device:", device)
@@ -62,12 +57,8 @@ def main():
 
     _, loss = model(x, y)
 
-    assert loss is not None, (
-        "Loss is required before backward propagation."
-    )
-    assert torch.isfinite(loss), (
-        "Loss should be finite before backward propagation."
-    )
+    assert loss is not None, "Loss is required before backward propagation."
+    assert torch.isfinite(loss), "Loss should be finite before backward propagation."
 
     loss.backward()
 
@@ -88,30 +79,22 @@ def main():
 
         gradients.append(parameter.grad)
 
-    assert not missing_gradients, (
-        f"Parameters without gradients: {missing_gradients}"
-    )
+    assert not missing_gradients, f"Parameters without gradients: {missing_gradients}"
     assert not non_finite_gradients, (
         f"Parameters with non-finite gradients: {non_finite_gradients}"
     )
 
-    global_grad_norm = torch.sqrt(
-        sum(gradient.pow(2).sum() for gradient in gradients)
-    )
+    global_grad_norm = torch.sqrt(sum(gradient.pow(2).sum() for gradient in gradients))
 
     print("loss:", loss.item())
     print("global gradient norm:", global_grad_norm.item())
 
-    assert torch.isfinite(global_grad_norm), (
-        "Global gradient norm should be finite."
-    )
+    assert torch.isfinite(global_grad_norm), "Global gradient norm should be finite."
     assert global_grad_norm.item() > 0, (
         "Global gradient norm should be greater than zero."
     )
 
-    print(
-        "\ncheck passed: parameter count and gradient flow are correct."
-    )
+    print("\ncheck passed: parameter count and gradient flow are correct.")
 
 
 if __name__ == "__main__":

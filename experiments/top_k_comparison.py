@@ -16,7 +16,7 @@ from src.tokenizer import CharTokenizer
 def main():
     config_path = PROJECT_ROOT / "configs" / "tiny.yaml"
 
-    with open(config_path, "r", encoding="utf-8") as file:
+    with open(config_path, encoding="utf-8") as file:
         config_data = yaml.safe_load(file)
 
     run_name = config_data["experiment"]["run_name"]
@@ -29,12 +29,7 @@ def main():
     else:
         device = requested_device
 
-    checkpoint_path = (
-        PROJECT_ROOT
-        / "experiments"
-        / "checkpoints"
-        / f"{run_name}.pt"
-    )
+    checkpoint_path = PROJECT_ROOT / "experiments" / "checkpoints" / f"{run_name}.pt"
 
     checkpoint = torch.load(
         checkpoint_path,
@@ -60,16 +55,11 @@ def main():
     prompt = generate_config["prompt"]
 
     unknown_characters = [
-        character
-        for character in prompt
-        if character not in tokenizer.stoi
+        character for character in prompt if character not in tokenizer.stoi
     ]
 
     if unknown_characters:
-        raise ValueError(
-            f"Prompt contains unknown characters: "
-            f"{unknown_characters}"
-        )
+        raise ValueError(f"Prompt contains unknown characters: {unknown_characters}")
 
     prompt_ids = tokenizer.encode(prompt)
     fixed_temperature = 0.8
@@ -98,9 +88,7 @@ def main():
             top_k=top_k,
         )
 
-        generated_text = tokenizer.decode(
-            generated_ids[0].tolist()
-        )
+        generated_text = tokenizer.decode(generated_ids[0].tolist())
 
         result = {
             "temperature": fixed_temperature,
@@ -110,24 +98,14 @@ def main():
         results.append(result)
 
         print("\n" + "=" * 70)
-        print(
-            f"temperature={fixed_temperature}, "
-            f"top_k={top_k}"
-        )
+        print(f"temperature={fixed_temperature}, top_k={top_k}")
         print("=" * 70)
         print(generated_text)
 
-    output_dir = (
-        PROJECT_ROOT
-        / "experiments"
-        / "generation_samples"
-    )
+    output_dir = PROJECT_ROOT / "experiments" / "generation_samples"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    output_path = (
-        output_dir
-        / "e005_top_k_comparison.json"
-    )
+    output_path = output_dir / "e005_top_k_comparison.json"
 
     experiment_data = {
         "experiment": "E005",

@@ -1,12 +1,12 @@
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from src.bpe_tokenizer import BPETokenizer
 from src.tokenizer import CharTokenizer, Tokenizer
 
 
 def build_tokenizer(
-    config_data: Dict[str, Any],
+    config_data: dict[str, Any],
     text: str,
     project_root: Path,
 ) -> Tokenizer:
@@ -28,10 +28,7 @@ def build_tokenizer(
             )
         tokenizer = BPETokenizer.load(str(tokenizer_path))
         expected_size = tokenizer_config.get("vocab_size")
-        if (
-            expected_size is not None
-            and tokenizer.vocab_size != expected_size
-        ):
+        if expected_size is not None and tokenizer.vocab_size != expected_size:
             raise ValueError(
                 "Configured BPE vocab size does not match "
                 f"the saved tokenizer: {expected_size} != "
@@ -42,7 +39,7 @@ def build_tokenizer(
     raise ValueError(f"Unsupported tokenizer type: {tokenizer_type}")
 
 
-def tokenizer_from_state(state: Dict[str, Any]) -> Tokenizer:
+def tokenizer_from_state(state: dict[str, Any]) -> Tokenizer:
     tokenizer_type = state.get("tokenizer_type")
 
     if tokenizer_type == "byte_bpe":

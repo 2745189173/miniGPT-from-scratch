@@ -5,7 +5,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import yaml
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 LOSS_CURVE_DIR = PROJECT_ROOT / "experiments" / "loss_curves"
@@ -27,7 +26,7 @@ def main():
     args = parse_args()
 
     if args.run_name is None:
-        with open(CONFIG_PATH, "r", encoding="utf-8") as file:
+        with open(CONFIG_PATH, encoding="utf-8") as file:
             config_data = yaml.safe_load(file)
         run_name = config_data["experiment"]["run_name"]
     else:
@@ -36,21 +35,15 @@ def main():
     history_path = LOSS_CURVE_DIR / f"{run_name}.json"
     output_path = LOSS_CURVE_DIR / f"{run_name}.png"
 
-    with open(history_path, "r", encoding="utf-8") as file:
+    with open(history_path, encoding="utf-8") as file:
         history = json.load(file)
 
     if not history:
         raise ValueError("Loss history is empty.")
 
     steps = [record["step"] for record in history]
-    train_losses = [
-        record["train_loss"]
-        for record in history
-    ]
-    val_losses = [
-        record["val_loss"]
-        for record in history
-    ]
+    train_losses = [record["train_loss"] for record in history]
+    val_losses = [record["val_loss"] for record in history]
 
     best_index = min(
         range(len(val_losses)),

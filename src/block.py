@@ -13,10 +13,10 @@ class FeedForward(nn.Module):
     """
 
     def __init__(
-            self,
-            n_embd: int,
-            dropout: float,
-            activation: str = "relu",
+        self,
+        n_embd: int,
+        dropout: float,
+        activation: str = "relu",
     ):
         super().__init__()
 
@@ -26,9 +26,7 @@ class FeedForward(nn.Module):
         }
 
         if activation not in activation_layers:
-            raise ValueError(
-                f"Unsupported activation: {activation}"
-            )
+            raise ValueError(f"Unsupported activation: {activation}")
 
         self.net = nn.Sequential(
             nn.Linear(n_embd, 4 * n_embd),
@@ -39,23 +37,23 @@ class FeedForward(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.net(x)
-    
+
 
 class TransformerBlock(nn.Module):
     """
     Pre-norm Transformer block.
-    
+
     Input and output:
         x: [B, T, n_embd]
     """
 
     def __init__(
-            self,
-            n_embd: int,
-            num_heads: int,
-            block_size: int,
-            dropout: float,
-            activation: str = "relu",
+        self,
+        n_embd: int,
+        num_heads: int,
+        block_size: int,
+        dropout: float,
+        activation: str = "relu",
     ):
         super().__init__()
 

@@ -23,7 +23,7 @@ def main():
     config_path = Path(args.config)
     if not config_path.is_absolute():
         config_path = PROJECT_ROOT / config_path
-    with open(config_path, "r", encoding="utf-8") as file:
+    with open(config_path, encoding="utf-8") as file:
         config_data = yaml.safe_load(file)
 
     tokenizer_config = config_data["tokenizer"]

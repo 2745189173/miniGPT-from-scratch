@@ -29,7 +29,7 @@ def main():
     if not config_path.is_absolute():
         config_path = PROJECT_ROOT / config_path
 
-    with open(config_path, "r", encoding="utf-8") as file:
+    with open(config_path, encoding="utf-8") as file:
         config_data = yaml.safe_load(file)
 
     train_config = config_data["train"]
@@ -44,12 +44,7 @@ def main():
 
     torch.manual_seed(config_data["seed"])
 
-    checkpoint_path = (
-        PROJECT_ROOT
-        / "experiments"
-        / "checkpoints"
-        / f"{run_name}.pt"
-    )
+    checkpoint_path = PROJECT_ROOT / "experiments" / "checkpoints" / f"{run_name}.pt"
 
     checkpoint = torch.load(
         checkpoint_path,
@@ -86,9 +81,7 @@ def main():
         top_k=generate_config["top_k"],
     )
 
-    generated_text = tokenizer.decode(
-        generated_ids[0].tolist()
-    )
+    generated_text = tokenizer.decode(generated_ids[0].tolist())
 
     print("run name:", run_name)
     print("checkpoint step:", checkpoint["step"])

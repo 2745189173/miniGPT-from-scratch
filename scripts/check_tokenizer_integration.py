@@ -13,7 +13,6 @@ from src.tokenizer_factory import build_tokenizer, tokenizer_from_state
 def main():
     with open(
         PROJECT_ROOT / "configs" / "tiny.yaml",
-        "r",
         encoding="utf-8",
     ) as file:
         config_data = yaml.safe_load(file)

@@ -34,10 +34,9 @@ def main():
     assert model.lm_head.weight is model.token_embedding.weight, (
         "LM head and token embedding should share one Parameter."
     )
-    assert (
-        model.lm_head.weight.data_ptr()
-        == model.token_embedding.weight.data_ptr()
-    ), "Tied weights should share the same tensor storage."
+    assert model.lm_head.weight.data_ptr() == model.token_embedding.weight.data_ptr(), (
+        "Tied weights should share the same tensor storage."
+    )
 
     assert len(model.blocks) == config.num_layers, (
         "Model should contain config.num_layers Transformer blocks."
@@ -75,9 +74,7 @@ def main():
         "Loss should be None when targets are not provided."
     )
 
-    print(
-        "\ncheck passed: Transformer model forward shape and loss are correct."
-    )
+    print("\ncheck passed: Transformer model forward shape and loss are correct.")
 
 
 if __name__ == "__main__":

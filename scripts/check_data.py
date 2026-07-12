@@ -6,8 +6,8 @@ import torch
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(PROJECT_ROOT))
 
+from src.dataset import build_dataset, get_batch, load_text
 from src.tokenizer import CharTokenizer
-from src.dataset import load_text, build_dataset, get_batch
 
 
 def main():
