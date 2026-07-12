@@ -4,7 +4,7 @@ A from-scratch implementation of a small Decoder-only Transformer language model
 
 ## Current Version
 
-`v0.7` adds checkpoint-compatible configurable feed-forward activations and adopts GELU for the current GPT-style model.
+`v0.8` adds checkpoint-compatible embedding/output weight tying and records its controlled character-level ablation.
 
 It includes:
 
@@ -31,6 +31,8 @@ It includes:
 - inherited loss histories and CPU/CUDA RNG state saving for resumable runs
 - configurable ReLU/GELU feed-forward activations stored in model checkpoints
 - backward-compatible loading of legacy ReLU checkpoints
+- optional token-embedding/language-head weight tying with shared storage checks
+- backward-compatible loading of legacy untied checkpoints
 
 The current toy corpus is intentionally tiny, so generated text demonstrates the complete pipeline rather than strong language quality.
 

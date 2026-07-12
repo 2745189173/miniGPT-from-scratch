@@ -101,6 +101,10 @@ def load_resume_state(
         "activation",
         "relu",
     )
+    checkpoint_model_config.setdefault(
+        "tie_weights",
+        False,
+    )
 
     if checkpoint_model_config != expected_model_config:
         raise ValueError(
@@ -183,6 +187,7 @@ def main():
         num_heads=model_config["n_head"],
         num_layers=model_config["n_layer"],
         activation=model_config.get("activation", "relu"),
+        tie_weights=model_config.get("tie_weights", False),
         dropout=model_config["dropout"],
     )
 

@@ -25,6 +25,7 @@ def main():
         num_heads=4,
         num_layers=2,
         activation="gelu",
+        tie_weights=True,
         dropout=0.1,
     )
 

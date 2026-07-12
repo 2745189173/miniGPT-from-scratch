@@ -16,6 +16,7 @@ class GPTConfig:
     num_heads: int
     num_layers: int
     activation: str = "relu"
+    tie_weights: bool = False
     dropout: float = 0.1
 
 class GPTLanguageModel(nn.Module):
@@ -63,6 +64,13 @@ class GPTLanguageModel(nn.Module):
             in_features=config.n_embd,
             out_features=config.vocab_size,
         )  # weight[vocab_size, n_embd], bias[vocab_size]
+
+        if config.tie_weights:
+            with torch.no_grad():
+                self.token_embedding.weight.copy_(
+                    self.lm_head.weight
+                )
+            self.lm_head.weight = self.token_embedding.weight
 
     def forward(
             self,

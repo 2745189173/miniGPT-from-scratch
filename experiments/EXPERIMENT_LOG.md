@@ -254,6 +254,33 @@ We misters not not time in overs, and the news!
 - Local artifacts: `e010_shakespeare_gelu.pt`, `e010_shakespeare_gelu.json`, and `e010_shakespeare_gelu.png` in their respective ignored experiment directories.
 - Next decision: retain GELU and evaluate another standard GPT technique, token-embedding/language-head weight tying, as a controlled parameter-sharing ablation.
 
+## E011 - Token Embedding and LM-Head Weight Tying
+
+- Date: 2026-07-12
+- Purpose: evaluate GPT-style parameter sharing between `token_embedding.weight` and `lm_head.weight` while holding the E010 architecture and training conditions fixed.
+- Corpus: Tiny Shakespeare, 1,115,394 characters, vocabulary size 65.
+- Model: block size 64, 4 layers, 4 heads, embedding size 128, GELU, dropout 0.1, with token/output weights tied.
+- Training: from scratch for 6,000 steps, batch size 32, AdamW, learning rate 0.0003, weight decay 0.1, seed 1337.
+- Parameters: 808,385 versus E010's 816,705, a reduction of 8,320 parameters (1.02%).
+- Best checkpoint: step 6,000, train loss 1.6748, validation loss 1.8149, approximate validation perplexity 6.14.
+- Comparison with E010: validation loss worsened from 1.6994 to 1.8149 (6.80% higher), while approximate perplexity worsened from 5.47 to 6.14 (12.25% higher).
+- Curve interpretation: validation loss decreases through the final step, so the negative result is not caused by late overfitting. E011 shows an early optimization plateau and remains behind E010 throughout training.
+- Initialization finding: directly tying PyTorch's default Embedding matrix produced step-0 validation loss around 82.7 because its scale was unsuitable as an output projection. Copying the original lm-head initialization into the shared matrix restored a healthy step-0 loss around 4.35.
+- Generation sample:
+
+```text
+The lay be madise a way do take reath the changs
+You that she rece. When that a full crown.
+
+HENRY VI:
+Would off hearfuit heart my well
+Which misters, and that stay to by preather preason
+```
+
+- Result: weight tying works technically and saves parameters, but it harms quality under the current character-level setup and initialization recipe. Keep the feature available but disabled in the preferred baseline.
+- Local artifacts: `e011_shakespeare_weight_tying.pt`, `e011_shakespeare_weight_tying.json`, and `e011_shakespeare_weight_tying.png` in their respective ignored experiment directories.
+- Next decision: restore E010 (GELU, untied weights) as the preferred character-level baseline and begin the BPE tokenizer phase.
+
 ## Recording Policy
 
 Record an experiment when at least one meaningful variable or outcome changes, such as:

@@ -12,6 +12,7 @@ model:
   n_head: 4
   n_embd: 128
   activation: gelu
+  tie_weights: false
   dropout: 0.1
 
 train:

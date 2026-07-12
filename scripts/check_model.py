@@ -25,10 +25,19 @@ def main():
         num_heads=4,
         num_layers=2,
         activation="gelu",
+        tie_weights=True,
         dropout=0.1,
     )
     model = GPTLanguageModel(config).to(device)
     print("num Transformer blocks:", len(model.blocks))
+
+    assert model.lm_head.weight is model.token_embedding.weight, (
+        "LM head and token embedding should share one Parameter."
+    )
+    assert (
+        model.lm_head.weight.data_ptr()
+        == model.token_embedding.weight.data_ptr()
+    ), "Tied weights should share the same tensor storage."
 
     assert len(model.blocks) == config.num_layers, (
         "Model should contain config.num_layers Transformer blocks."
