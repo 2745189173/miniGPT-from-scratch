@@ -201,6 +201,32 @@ We mire, sends night staid overs, and the now
 - Local artifacts: `e008_shakespeare_width128.pt`, `e008_shakespeare_width128.json`, and `e008_shakespeare_width128.png` in their respective ignored experiment directories.
 - Next decision: retain block size 64 and width 128, then increase only depth from 2 to 4 layers to isolate depth scaling.
 
+## E009 - Transformer Depth 4
+
+- Date: 2026-07-12
+- Purpose: isolate depth scaling by increasing `n_layer` from 2 to 4 while keeping width, context, heads, and training settings fixed.
+- Corpus: Tiny Shakespeare, 1,115,394 characters, vocabulary size 65.
+- Model: block size 64, 4 layers, 4 heads, embedding size 128, dropout 0.1.
+- Training: from scratch for 6,000 steps, batch size 32, AdamW, learning rate 0.0003, weight decay 0.1, seed 1337.
+- Parameters: 816,705, approximately 1.94 times E008's 420,929 parameters.
+- Best checkpoint: step 6,000, train loss 1.5468, validation loss 1.7097, approximate validation perplexity 5.53.
+- Comparison with E008: validation loss improved from 1.8122 to 1.7097 (5.7% lower), while approximate perplexity improved from 6.12 to 5.53 (9.7% lower).
+- Curve interpretation: train and validation losses continue trending downward through the final evaluation. A moderate generalization gap remains, but there is no sustained validation deterioration.
+- Generation settings: prompt `the`, seed 1337, temperature 0.8, top-k 20, 300 new tokens.
+- Generation sample:
+
+```text
+the will affend comford, and, but
+be sence be to take and my call and barnith;
+Nurse the trace that ane are the confallack, on my
+to them of it heart my for like enour entent,
+And them in overs, and the now of you so. Ahave you hearns;
+```
+
+- Generation interpretation: longer grammatical spans, punctuation, line continuity, and sentence-like structure improve over E008, though invented words and semantic instability remain.
+- Local artifacts: `e009_shakespeare_depth4.pt`, `e009_shakespeare_depth4.json`, and `e009_shakespeare_depth4.png` in their respective ignored experiment directories.
+- Next decision: stop pure capacity scaling temporarily and run an activation-function ablation, replacing ReLU with GELU to more closely match GPT-style feed-forward networks.
+
 ## Recording Policy
 
 Record an experiment when at least one meaningful variable or outcome changes, such as:

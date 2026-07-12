@@ -1,14 +1,14 @@
 seed: 1337
 
 experiment:
-  run_name: e008_shakespeare_width128
+  run_name: e009_shakespeare_depth4
 
 data:
   input_path: data/raw/input.txt
 
 model:
   block_size: 64
-  n_layer: 2
+  n_layer: 4
   n_head: 4
   n_embd: 128
   dropout: 0.1
