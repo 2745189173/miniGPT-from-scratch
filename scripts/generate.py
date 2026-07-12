@@ -1,3 +1,4 @@
+import argparse
 import sys
 from pathlib import Path
 
@@ -9,11 +10,24 @@ sys.path.append(str(PROJECT_ROOT))
 
 from src.generation import generate
 from src.model import GPTConfig, GPTLanguageModel
-from src.tokenizer import CharTokenizer
+from src.tokenizer_factory import tokenizer_from_state
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--config",
+        default="configs/tiny.yaml",
+        help="Config path relative to the project root.",
+    )
+    return parser.parse_args()
 
 
 def main():
-    config_path = PROJECT_ROOT / "configs" / "tiny.yaml"
+    args = parse_args()
+    config_path = Path(args.config)
+    if not config_path.is_absolute():
+        config_path = PROJECT_ROOT / config_path
 
     with open(config_path, "r", encoding="utf-8") as file:
         config_data = yaml.safe_load(file)
@@ -48,31 +62,16 @@ def main():
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
 
-    tokenizer_data = checkpoint["tokenizer"]
-
-    tokenizer = CharTokenizer.__new__(CharTokenizer)
-    tokenizer.stoi = tokenizer_data["stoi"]
-    tokenizer.itos = {
-        int(token_id): character
-        for token_id, character in tokenizer_data["itos"].items()
-    }
-    tokenizer.vocab_size = tokenizer_data["vocab_size"]
+    tokenizer = tokenizer_from_state(checkpoint["tokenizer"])
 
     prompt = generate_config["prompt"]
 
-    unknown_characters = [
-        character
-        for character in prompt
-        if character not in tokenizer.stoi
-    ]
-
-    if unknown_characters:
+    try:
+        prompt_ids = tokenizer.encode(prompt)
+    except (KeyError, UnicodeEncodeError) as error:
         raise ValueError(
-            f"Prompt contains unknown characters: "
-            f"{unknown_characters}"
-        )
-
-    prompt_ids = tokenizer.encode(prompt)
+            f"Prompt cannot be encoded by this tokenizer: {prompt!r}"
+        ) from error
     idx = torch.tensor(
         [prompt_ids],
         dtype=torch.long,

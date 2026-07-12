@@ -1,15 +1,13 @@
 seed: 1337
 
 experiment:
-  run_name: e012_shakespeare_bpe512
+  run_name: e010_shakespeare_gelu
 
 data:
   input_path: data/raw/input.txt
 
 tokenizer:
-  type: byte_bpe
-  vocab_size: 512
-  path: artifacts/tokenizers/tiny_shakespeare_bpe_512.json
+  type: char
 
 model:
   block_size: 64

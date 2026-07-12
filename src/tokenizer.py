@@ -1,5 +1,5 @@
 import json
-from typing import List, Protocol
+from typing import Any, Dict, List, Protocol
 
 
 class Tokenizer(Protocol):
@@ -12,6 +12,9 @@ class Tokenizer(Protocol):
         ...
 
     def save(self, path: str) -> None:
+        ...
+
+    def to_state(self) -> Dict[str, Any]:
         ...
 
 
@@ -41,14 +44,31 @@ class CharTokenizer:
     
     def save(self, path: str) -> None:
         """Save tokenizer vocabulary to a JSON file"""
-        data = {
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(
+                self.to_state(),
+                f,
+                ensure_ascii=False,
+                indent=2,
+            )
+
+    def to_state(self) -> Dict[str, Any]:
+        return {
+            "tokenizer_type": "char",
             "stoi": self.stoi,
-            "itos": {str(k):v for k, v in self.itos.items()},
+            "itos": {str(k): v for k, v in self.itos.items()},
             "vocab_size": self.vocab_size,
         }
 
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+    @classmethod
+    def from_state(cls, data: Dict[str, Any]):
+        tokenizer = cls.__new__(cls)
+        tokenizer.stoi = data["stoi"]
+        tokenizer.itos = {
+            int(k): v for k, v in data["itos"].items()
+        }
+        tokenizer.vocab_size = data["vocab_size"]
+        return tokenizer
 
     @classmethod
     def load(cls, path: str):
@@ -56,9 +76,4 @@ class CharTokenizer:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        tokenizer = cls.__new__(cls)
-        tokenizer.stoi = data["stoi"]
-        tokenizer.itos = {int(k): v for k, v in data["itos"].items()}
-        tokenizer.vocab_size = data["vocab_size"]
-
-        return tokenizer
+        return cls.from_state(data)

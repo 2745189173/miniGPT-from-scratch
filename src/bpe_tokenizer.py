@@ -1,6 +1,6 @@
 import json
 from collections import Counter
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 
 Pair = Tuple[int, int]
@@ -138,7 +138,11 @@ class BPETokenizer:
         )
 
     def save(self, path: str) -> None:
-        data = {
+        with open(path, "w", encoding="utf-8") as file:
+            json.dump(self.to_state(), file, indent=2)
+
+    def to_state(self) -> Dict[str, Any]:
+        return {
             "tokenizer_type": "byte_bpe",
             "vocab_size": self.vocab_size,
             "merges": [
@@ -147,17 +151,11 @@ class BPETokenizer:
             ],
         }
 
-        with open(path, "w", encoding="utf-8") as file:
-            json.dump(data, file, indent=2)
-
     @classmethod
-    def load(cls, path: str):
-        with open(path, "r", encoding="utf-8") as file:
-            data = json.load(file)
-
+    def from_state(cls, data: Dict[str, Any]):
         if data.get("tokenizer_type") != "byte_bpe":
             raise ValueError(
-                "File does not contain a byte-level BPE tokenizer."
+                "State does not contain a byte-level BPE tokenizer."
             )
 
         tokenizer = cls()
@@ -166,9 +164,7 @@ class BPETokenizer:
             for left_id, right_id in data["merges"]
         ]
 
-        for merge_index, pair in enumerate(
-            tokenizer.merges
-        ):
+        for merge_index, pair in enumerate(tokenizer.merges):
             new_token_id = 256 + merge_index
             tokenizer.vocab[new_token_id] = (
                 tokenizer.vocab[pair[0]]
@@ -177,4 +173,14 @@ class BPETokenizer:
 
         tokenizer.vocab_size = len(tokenizer.vocab)
 
+        if tokenizer.vocab_size != data["vocab_size"]:
+            raise ValueError("BPE vocabulary size does not match merges.")
+
         return tokenizer
+
+    @classmethod
+    def load(cls, path: str):
+        with open(path, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        return cls.from_state(data)

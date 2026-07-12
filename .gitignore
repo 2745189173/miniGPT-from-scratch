@@ -10,6 +10,7 @@ experiments/checkpoints/
 experiments/loss_curves/
 experiments/generation_samples/
 experiments/abalation_results/
+experiments/ablation_results/
 
 *.pt
 *.pth

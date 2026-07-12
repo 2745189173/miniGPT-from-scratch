@@ -1,3 +1,4 @@
+import argparse
 import json
 import sys
 from dataclasses import asdict
@@ -11,7 +12,17 @@ sys.path.append(str(PROJECT_ROOT))
 
 from src.dataset import build_dataset, get_batch, load_text
 from src.model import GPTConfig, GPTLanguageModel
-from src.tokenizer import CharTokenizer
+from src.tokenizer_factory import build_tokenizer
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--config",
+        default="configs/tiny.yaml",
+        help="Config path relative to the project root.",
+    )
+    return parser.parse_args()
 
 
 @torch.no_grad()
@@ -147,7 +158,10 @@ def load_resume_state(
     return checkpoint, loss_history
 
 def main():
-    config_path = PROJECT_ROOT / "configs" / "tiny.yaml"
+    args = parse_args()
+    config_path = Path(args.config)
+    if not config_path.is_absolute():
+        config_path = PROJECT_ROOT / config_path
 
     with open(config_path, "r", encoding="utf-8") as file:
         config_data = yaml.safe_load(file)
@@ -177,7 +191,11 @@ def main():
         device = requested_device
 
     text = load_text(data_config["input_path"])
-    tokenizer = CharTokenizer(text)
+    tokenizer = build_tokenizer(
+        config_data=config_data,
+        text=text,
+        project_root=PROJECT_ROOT,
+    )
     train_data, val_data = build_dataset(text, tokenizer)
 
     config = GPTConfig(
@@ -246,6 +264,7 @@ def main():
     print("start step:", start_step)
     print("target step:", train_config["max_iters"])
     print("device:", device)
+    print("tokenizer:", type(tokenizer).__name__)
     print("vocab size:", tokenizer.vocab_size)
     print("train tokens:", len(train_data))
     print("validation tokens:", len(val_data))
@@ -298,11 +317,7 @@ def main():
                     "model_state_dict": model.state_dict(),
                     "optimizer_state_dict": optimizer.state_dict(),
                     "model_config": asdict(config),
-                    "tokenizer": {
-                        "stoi": tokenizer.stoi,
-                        "itos": tokenizer.itos,
-                        "vocab_size": tokenizer.vocab_size,
-                    },
+                    "tokenizer": tokenizer.to_state(),
                     "train_loss": losses["train"],
                     "val_loss": losses["val"],
                     "run_config": config_data,

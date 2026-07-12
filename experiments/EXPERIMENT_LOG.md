@@ -281,6 +281,38 @@ Which misters, and that stay to by preather preason
 - Local artifacts: `e011_shakespeare_weight_tying.pt`, `e011_shakespeare_weight_tying.json`, and `e011_shakespeare_weight_tying.png` in their respective ignored experiment directories.
 - Next decision: restore E010 (GELU, untied weights) as the preferred character-level baseline and begin the BPE tokenizer phase.
 
+## E012 - Byte-level BPE-512 Model
+
+- Date: 2026-07-12
+- Purpose: complete the tokenizer phase by integrating a learned byte-level BPE vocabulary into dataset construction, checkpointing, training, restoration, and generation.
+- Corpus: Tiny Shakespeare, 1,115,394 UTF-8 bytes/characters.
+- Tokenizer: byte-level BPE with 256 base bytes and 256 learned merges, vocabulary size 512.
+- Compression: 568,210 BPE tokens versus 1,115,394 character tokens, a 49.06% token-count reduction and 1.963 bytes per BPE token.
+- Context coverage: block size 64 covers an estimated 125.6 characters with BPE versus 64 characters with character tokenization, a 1.96x increase.
+- Model: block size 64, 4 layers, 4 heads, embedding size 128, GELU, untied weights, dropout 0.1.
+- Parameters: 931,584. The increase over E010 comes from the larger 512-token input/output vocabulary.
+- Training: from scratch for 6,000 steps, batch size 32, AdamW, learning rate 0.0003, weight decay 0.1, seed 1337.
+- Best checkpoint: step 6,000, train loss 2.7847, validation loss 3.1803.
+- Cross-tokenizer evaluation: token-level losses are not directly comparable. Estimated bits per character improved from E010's 2.4516 to E012's 2.3374, approximately 4.66% better.
+- Generation settings: prompt `the`, seed 1337, temperature 0.8, top-k 20, 300 new BPE tokens.
+- Generation sample:
+
+```text
+they hands that can trumble with laughter,
+Captain is the daughter, hearty of your swork;
+Well I have duke me, and you are a maids the devil'd, and these a fear!
+I am as fearth: if Warwick, thou'st thou liege, and the heart of
+put scart and thank you happs and gods with him laught.
+
+KING RICHARD II:
+Now, go my lord, and can her give me business to his troge about bod,
+```
+
+- Result: BPE nearly halves sequence length, improves effective context coverage and estimated bits per character, and produces visibly stronger word-level and dialogue structure. The complete BPE checkpoint independently restores its tokenizer merges and model.
+- Local artifacts: `e012_shakespeare_bpe512.pt`, `e012_shakespeare_bpe512.json`, and `e012_shakespeare_bpe512.png` in their respective ignored experiment directories.
+- Tracked tokenizer artifact: `artifacts/tokenizers/tiny_shakespeare_bpe_512.json`.
+- Next decision: finalize documentation and release v1.0. Further architecture and inference improvements are optional extensions.
+
 ## Recording Policy
 
 Record an experiment when at least one meaningful variable or outcome changes, such as:

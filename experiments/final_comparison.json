@@ -1,0 +1,21 @@
+{
+  "character_baseline": {
+    "run": "e010_shakespeare_gelu",
+    "vocab_size": 65,
+    "parameters": 816705,
+    "best_step": 6000,
+    "validation_loss_per_token": 1.6993534564971924,
+    "estimated_bits_per_character": 2.4516488044060183
+  },
+  "bpe_model": {
+    "run": "e012_shakespeare_bpe512",
+    "vocab_size": 512,
+    "parameters": 931584,
+    "best_step": 6000,
+    "validation_loss_per_token": 3.180327892303467,
+    "estimated_bits_per_character": 2.337367525151366
+  },
+  "token_count_reduction": 0.4905746310272424,
+  "context_coverage_multiplier": 1.9629960753946605,
+  "estimated_bpc_improvement": 0.046614049715958505
+}

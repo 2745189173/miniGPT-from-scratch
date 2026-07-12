@@ -1,7 +1,7 @@
 import torch
 from typing import Tuple
 
-from src.tokenizer import CharTokenizer
+from src.tokenizer import Tokenizer
 
 
 def load_text(path: str) -> str:
@@ -11,7 +11,7 @@ def load_text(path: str) -> str:
 
 def build_dataset(
         text: str,
-        tokenizer: CharTokenizer,
+        tokenizer: Tokenizer,
         train_ratio: float = 0.9,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """

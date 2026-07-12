@@ -1,0 +1,12 @@
+{
+  "text_characters": 1115394,
+  "text_utf8_bytes": 1115394,
+  "char_vocab_size": 65,
+  "bpe_vocab_size": 512,
+  "char_token_count": 1115394,
+  "bpe_token_count": 568210,
+  "token_count_reduction": 0.4905746310272424,
+  "bpe_bytes_per_token": 1.9629960753946605,
+  "char_context_characters": 64,
+  "estimated_bpe_context_characters": 125.63174882525827
+}
