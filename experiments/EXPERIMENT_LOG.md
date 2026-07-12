@@ -173,6 +173,34 @@ What miree sen cintlaivent drove the the me nown is warmes like dience.
 - Engineering result: resumed checkpoints now preserve model state, optimizer state, global step, inherited loss history, and CPU/CUDA RNG states for future continuations.
 - Next decision: keep block size 64 and compare model capacity, beginning with increased embedding width while holding depth and training conditions controlled.
 
+## E008 - Embedding Width 128
+
+- Date: 2026-07-12
+- Purpose: isolate model-width scaling by increasing `n_embd` from 64 to 128 while retaining the established context length and depth.
+- Corpus: Tiny Shakespeare, 1,115,394 characters, vocabulary size 65.
+- Model: block size 64, 2 layers, 4 heads, embedding size 128, dropout 0.1.
+- Training: from scratch for 6,000 steps, batch size 32, AdamW, learning rate 0.0003, weight decay 0.1, seed 1337.
+- Parameters: 420,929, approximately 3.75 times E007's 112,193 parameters.
+- Initial loss: train 4.3924, validation 4.3960.
+- Best checkpoint: step 5,900, train loss 1.6549, validation loss 1.8122, approximate validation perplexity 6.12.
+- Final loss: step 6,000, train 1.6543, validation 1.8125.
+- Comparison with E007: validation loss improved from 2.0095 to 1.8122 (9.8% lower), while approximate perplexity improved from 7.46 to 6.12 (17.9% lower).
+- Curve interpretation: the wider model develops a moderate train/validation gap, but validation loss remains near its best at the end of training and does not show sustained deterioration.
+- Generation settings: prompt `the`, seed 1337, temperature 0.8, top-k 20, 300 new tokens.
+- Generation sample:
+
+```text
+the will affery come,
+The lady the dispon of our take and my dalied
+My art that us hath be are that ane are the hearts
+a with our to the to find come milending,
+We mire, sends night staid overs, and the now
+```
+
+- Generation interpretation: compared with E007, common words, multi-line syntax, punctuation, and sentence-like continuity are substantially more stable, although grammar and semantics remain imperfect.
+- Local artifacts: `e008_shakespeare_width128.pt`, `e008_shakespeare_width128.json`, and `e008_shakespeare_width128.png` in their respective ignored experiment directories.
+- Next decision: retain block size 64 and width 128, then increase only depth from 2 to 4 layers to isolate depth scaling.
+
 ## Recording Policy
 
 Record an experiment when at least one meaningful variable or outcome changes, such as:

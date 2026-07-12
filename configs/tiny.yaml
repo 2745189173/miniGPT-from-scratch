@@ -1,7 +1,7 @@
 seed: 1337
 
 experiment:
-  run_name: e007_shakespeare_block64_6000
+  run_name: e008_shakespeare_width128
 
 data:
   input_path: data/raw/input.txt
@@ -10,7 +10,7 @@ model:
   block_size: 64
   n_layer: 2
   n_head: 4
-  n_embd: 64
+  n_embd: 128
   dropout: 0.1
 
 train:
@@ -21,7 +21,6 @@ train:
   learning_rate: 0.0003
   weight_decay: 0.1
   device: cuda
-  resume_from: e006_shakespeare_block64
 
 generate:
   prompt: "the"
