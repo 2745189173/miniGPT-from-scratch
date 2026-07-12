@@ -43,7 +43,7 @@ def main():
     }
 
     output_path = PROJECT_ROOT / "experiments" / "tokenizer_comparison.json"
-    with open(output_path, "w", encoding="utf-8") as file:
+    with open(output_path, "w", encoding="utf-8", newline="\n") as file:
         json.dump(result, file, indent=2)
 
     for key, value in result.items():

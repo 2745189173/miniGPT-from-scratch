@@ -40,7 +40,7 @@ class CharTokenizer:
 
     def save(self, path: str) -> None:
         """Save tokenizer vocabulary to a JSON file"""
-        with open(path, "w", encoding="utf-8") as f:
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
             json.dump(
                 self.to_state(),
                 f,

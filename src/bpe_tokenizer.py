@@ -119,7 +119,7 @@ class BPETokenizer:
         )
 
     def save(self, path: str) -> None:
-        with open(path, "w", encoding="utf-8") as file:
+        with open(path, "w", encoding="utf-8", newline="\n") as file:
             json.dump(self.to_state(), file, indent=2)
 
     def to_state(self) -> dict[str, Any]:
