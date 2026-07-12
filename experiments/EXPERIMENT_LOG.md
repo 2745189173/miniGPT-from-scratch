@@ -42,6 +42,33 @@ War dilas ate are than.
 - Interpretation: output remains incoherent, but word-like fragments, punctuation, capitalization, line breaks, and play-like rhythm improved substantially over E001.
 - Local artifacts: `e002_shakespeare_baseline.pt`, `e002_shakespeare_baseline.json`, and `e002_shakespeare_baseline.png` in their respective ignored experiment directories.
 
+## E003 - Tiny Shakespeare 3000-Step Training
+
+- Date: 2026-07-12
+- Purpose: test whether E002 was undertrained by changing only the training duration from 500 to 3,000 steps.
+- Corpus: Tiny Shakespeare, 1,115,394 characters, vocabulary size 65.
+- Model: unchanged from E002: block size 16, 2 layers, 4 heads, embedding size 64, dropout 0.1.
+- Training: unchanged from E002 except for 3,000 steps; batch size 32, AdamW, learning rate 0.0003, weight decay 0.1, seed 1337.
+- Parameters: 109,121.
+- Initial loss: train 4.3218, validation 4.3186.
+- Best checkpoint: step 2,900, train loss 2.1349, validation loss 2.1292.
+- Final loss: step 3,000, train 2.1357, validation 2.1481.
+- Comparison with E002: best validation loss improved from 2.5130 to 2.1292 (15.3% lower); validation perplexity improved from approximately 12.34 to 8.41 (31.9% lower).
+- Result: E002 was undertrained. Train and validation curves remained close throughout E003, and no sustained overfitting was observed. The small rise at step 3,000 is consistent with evaluation noise rather than a clear reversal.
+- Generation sample:
+
+```text
+the wint if bridchwill thall, be madisen bube to tarther the catatands:
+Whit he us he hert?
+
+MEXENDHate awick my thand a wize mus
+Youns, to fit he cove thelill, at miree seng, will is tharev
+```
+
+- Interpretation: character-level coherence improved noticeably. The model now reproduces play-like speaker labels, punctuation, capitalization, questions, line breaks, and longer word-like fragments, but semantics and spelling remain unstable.
+- Local artifacts: `e003_shakespeare_3000_steps.pt`, `e003_shakespeare_3000_steps.json`, and `e003_shakespeare_3000_steps.png` in their respective ignored experiment directories.
+- Next decision: hold the E003 checkpoint fixed and run controlled inference-time temperature/top-k comparisons before changing architecture or training settings.
+
 ## Recording Policy
 
 Record an experiment when at least one meaningful variable or outcome changes, such as:

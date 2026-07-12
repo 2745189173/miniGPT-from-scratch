@@ -1,7 +1,7 @@
 seed: 1337
 
 experiment:
-  run_name: e002_shakespeare_baseline
+  run_name: e003_shakespeare_3000_steps
 
 data:
   input_path: data/raw/input.txt
@@ -15,7 +15,7 @@ model:
 
 train:
   batch_size: 32
-  max_iters: 500
+  max_iters: 3000
   eval_interval: 100
   eval_iters: 20
   learning_rate: 0.0003
