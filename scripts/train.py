@@ -55,6 +55,84 @@ def estimate_loss(
     model.train()
     return losses
 
+def load_resume_state(
+    model,
+    optimizer,
+    model_config,
+    resume_run,
+    device,
+):
+    checkpoint_path = (
+        PROJECT_ROOT
+        / "experiments"
+        / "checkpoints"
+        / f"{resume_run}.pt"
+    )
+
+    history_path = (
+        PROJECT_ROOT
+        / "experiments"
+        / "loss_curves"
+        / f"{resume_run}.json"
+    )
+
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(
+            f"Resume checkpoint not found: {checkpoint_path}"
+        )
+
+    if not history_path.exists():
+        raise FileNotFoundError(
+            f"Resume loss history not found: {history_path}"
+        )
+
+    checkpoint = torch.load(
+        checkpoint_path,
+        map_location=device,
+        weights_only=False,
+    )
+
+    expected_model_config = asdict(model_config)
+
+    if checkpoint["model_config"] != expected_model_config:
+        raise ValueError(
+            "Resume checkpoint model configuration does not "
+            "match the current model configuration."
+        )
+
+    model.load_state_dict(checkpoint["model_state_dict"])
+    optimizer.load_state_dict(
+        checkpoint["optimizer_state_dict"]
+    )
+
+    with open(history_path, "r", encoding="utf-8") as file:
+        loss_history = json.load(file)
+
+    if "cpu_rng_state" in checkpoint:
+        torch.set_rng_state(
+            checkpoint["cpu_rng_state"].cpu()
+        )
+    else:
+        print(
+            "warning: checkpoint has no CPU RNG state; "
+            "continuation will not be bitwise reproducible."
+        )
+
+    if (
+        device == "cuda"
+        and checkpoint.get("cuda_rng_state_all") is not None
+    ):
+        cuda_rng_states = [
+            state.cpu()
+            for state in checkpoint["cuda_rng_state_all"]
+        ]
+        torch.cuda.set_rng_state_all(cuda_rng_states)
+
+    print("resumed from:", checkpoint_path)
+    print("resume step:", checkpoint["step"])
+    print("previous best val loss:", checkpoint["val_loss"])
+
+    return checkpoint, loss_history
 
 def main():
     config_path = PROJECT_ROOT / "configs" / "tiny.yaml"
@@ -67,6 +145,7 @@ def main():
     data_config = config_data["data"]
     model_config = config_data["model"]
     train_config = config_data["train"]
+    resume_from = train_config.get("resume_from")
 
     if not run_name or not all(
         character.isalnum() or character in {"-", "_"}
@@ -115,11 +194,43 @@ def main():
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
     best_checkpoint_path = checkpoint_dir / f"{run_name}.pt"
+    start_step = 0
     best_val_loss = float("inf")
     best_step = -1
     loss_history = []
 
+    if resume_from is not None:
+        resume_checkpoint, loss_history = load_resume_state(
+            model=model,
+            optimizer=optimizer,
+            model_config=config,
+            resume_run=resume_from,
+            device=device,
+        )
+
+        start_step = resume_checkpoint["step"]
+        best_step = resume_checkpoint["step"]
+        best_val_loss = resume_checkpoint["val_loss"]
+
+        resume_checkpoint["run_name"] = run_name
+        resume_checkpoint["run_config"] = config_data
+        resume_checkpoint["cpu_rng_state"] = (
+            torch.get_rng_state()
+        )
+        resume_checkpoint["cuda_rng_state_all"] = (
+            torch.cuda.get_rng_state_all()
+            if device == "cuda"
+            else None
+        )
+
+        torch.save(
+            resume_checkpoint,
+            best_checkpoint_path,
+        )
+
     print("run name:", run_name)
+    print("start step:", start_step)
+    print("target step:", train_config["max_iters"])
     print("device:", device)
     print("vocab size:", tokenizer.vocab_size)
     print("train tokens:", len(train_data))
@@ -129,8 +240,18 @@ def main():
     max_iters = train_config["max_iters"]
     eval_interval = train_config["eval_interval"]
 
-    for step in range(max_iters + 1):
-        if step % eval_interval == 0 or step == max_iters:
+    for step in range(start_step, max_iters + 1):
+        is_resume_boundary = (
+            resume_from is not None
+            and step == start_step
+        )
+
+        should_evaluate = (
+            step % eval_interval == 0
+            or step == max_iters
+        )
+
+        if should_evaluate and not is_resume_boundary:
             losses = estimate_loss(
                 model=model,
                 train_data=train_data,
@@ -171,6 +292,12 @@ def main():
                     "train_loss": losses["train"],
                     "val_loss": losses["val"],
                     "run_config": config_data,
+                    "cpu_rng_state": torch.get_rng_state(),
+                    "cuda_rng_state_all": (
+                        torch.cuda.get_rng_state_all()
+                        if device == "cuda"
+                        else None
+                    ),
                 }
 
                 torch.save(checkpoint, best_checkpoint_path)

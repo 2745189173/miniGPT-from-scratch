@@ -143,6 +143,36 @@ Har he fald to horm he offor tof is he me mil;
 - Local artifacts: `e006_shakespeare_block64.pt`, `e006_shakespeare_block64.json`, and `e006_shakespeare_block64.png` in their respective ignored experiment directories.
 - Next decision: add checkpoint resume support and continue the E006 training trajectory to 6,000 total steps before judging block size 64.
 
+## E007 - Resumed Context-64 Training to 6000 Steps
+
+- Date: 2026-07-12
+- Purpose: determine whether E006 was undertrained and validate model/optimizer checkpoint resume support.
+- Resume source: E006 step 3,000 checkpoint, including model and AdamW optimizer states. E006 did not contain RNG states, so this first continuation cannot reconstruct an unavailable bitwise-identical E006 random stream.
+- Corpus and model: unchanged from E006: Tiny Shakespeare, block size 64, 2 layers, 4 heads, embedding size 64, dropout 0.1, 112,193 parameters.
+- Continued training: step 3,000 to total step 6,000, batch size 32, learning rate 0.0003, weight decay 0.1.
+- History integrity: 61 unique evaluation records cover steps 0 through 6,000 at intervals of 100, with exactly one step-3,000 record.
+- Best checkpoint: step 5,600, train loss 1.9819, validation loss 2.0095, approximate validation perplexity 7.46.
+- Final loss: step 6,000, train 1.9449, validation 2.0227.
+- Comparison with E006: validation loss improved from 2.1918 to 2.0095 (8.3% lower).
+- Comparison with E003: validation loss improved from 2.1292 to 2.0095 (5.6% lower), and perplexity improved from approximately 8.41 to 7.46.
+- Result: E006 was undertrained. With sufficient optimization, block size 64 surpassed the block-16 baseline under this setup. Validation loss flattened near step 5,600 while train loss continued decreasing, indicating diminishing returns but no severe overfitting.
+- Generation settings: prompt `the`, seed 1337, temperature 0.8, top-k 20, 300 new tokens.
+- Generation sample:
+
+```text
+the with affer
+Thow and is by be madient bube to tanthend my dagay uss;
+Whith fould a he that dill ware awch, my thenstake hour he ofform'd fition.
+
+VORWINIO:
+What miree sen cintlaivent drove the the me nown is warmes like dience.
+```
+
+- Generation interpretation: longer sentence spans, speaker-like labels, punctuation, contractions, and dialogue formatting are more stable, although semantic coherence and spelling remain limited.
+- Local artifacts: `e007_shakespeare_block64_6000.pt`, `e007_shakespeare_block64_6000.json`, and `e007_shakespeare_block64_6000.png` in their respective ignored experiment directories.
+- Engineering result: resumed checkpoints now preserve model state, optimizer state, global step, inherited loss history, and CPU/CUDA RNG states for future continuations.
+- Next decision: keep block size 64 and compare model capacity, beginning with increased embedding width while holding depth and training conditions controlled.
+
 ## Recording Policy
 
 Record an experiment when at least one meaningful variable or outcome changes, such as:

@@ -4,7 +4,7 @@ A from-scratch implementation of a small Decoder-only Transformer language model
 
 ## Current Version
 
-`v0.5` adds reproducible experiment tracking, isolated artifacts, loss visualization, and controlled decoding comparisons.
+`v0.6` adds reproducible checkpoint resume support and validates longer-context training through controlled experiments.
 
 It includes:
 
@@ -27,6 +27,8 @@ It includes:
 - autoregressive generation with temperature and top-k sampling
 - run-isolated checkpoints, histories, plots, and generation samples
 - controlled temperature and top-k comparison experiments
+- model/optimizer restoration with continued global step numbering
+- inherited loss histories and CPU/CUDA RNG state saving for resumable runs
 
 The current toy corpus is intentionally tiny, so generated text demonstrates the complete pipeline rather than strong language quality.
 
