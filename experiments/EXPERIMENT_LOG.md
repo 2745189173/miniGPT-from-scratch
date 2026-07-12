@@ -69,6 +69,54 @@ Youns, to fit he cove thelill, at miree seng, will is tharev
 - Local artifacts: `e003_shakespeare_3000_steps.pt`, `e003_shakespeare_3000_steps.json`, and `e003_shakespeare_3000_steps.png` in their respective ignored experiment directories.
 - Next decision: hold the E003 checkpoint fixed and run controlled inference-time temperature/top-k comparisons before changing architecture or training settings.
 
+## E004 - Temperature Comparison
+
+- Date: 2026-07-12
+- Purpose: isolate the effect of sampling temperature on coherence and diversity.
+- Fixed conditions: E003 step-2,900 checkpoint, prompt `the`, seed 1337, 300 new tokens, top-k 40.
+- Compared temperatures: 0.5, 0.8, 1.1, and 1.4.
+- Temperature 0.5: produced the most stable word-like fragments, but collapsed toward high-frequency words and repeated `the` heavily. Diversity and play-like structure were weak.
+- Temperature 0.8: produced the best balance in this run, with line breaks, questions, speaker-like labels, and moderate lexical variety while retaining some local structure.
+- Temperature 1.1: increased formatting and lexical diversity, but spelling fragmented more often and local coherence weakened.
+- Temperature 1.4: produced the highest diversity but noticeably more broken words, abrupt punctuation, rare character combinations, and unstable structure.
+- Result: increasing temperature traded local coherence for diversity as expected. Temperature 0.8 is selected as the controlled value for the next top-k comparison; this is a run-specific engineering choice, not a universal optimum.
+- Representative contrast:
+
+```text
+temperature 0.5: ... in the the the me not the wat thell ...
+temperature 0.8: MEXENDHate awick my thand a wize mus ...
+temperature 1.1: DUKENWIO: Welll no me litenser cechiry ...
+temperature 1.4: Yatauss: Vanthat usqor, vet? ...
+```
+
+- Local artifact: `experiments/generation_samples/e004_temperature_comparison.json`.
+- Next decision: hold temperature at 0.8 and compare top-k values with every other generation condition fixed.
+
+## E005 - Top-k Comparison
+
+- Date: 2026-07-12
+- Purpose: isolate the effect of top-k filtering after selecting temperature 0.8 in E004.
+- Fixed conditions: E003 step-2,900 checkpoint, prompt `the`, seed 1337, 300 new tokens, temperature 0.8.
+- Compared top-k values: 1, 5, 10, 20, 40, and no filtering.
+- Top-k 1: collapsed into a deterministic `the the the ...` loop. Greedy next-token choice could not escape the locally most likely continuation.
+- Top-k 5: produced recognizable word-like fragments but remained conservative and repetitive, heavily favoring common words such as `the` and `and`.
+- Top-k 10: improved variety while retaining relatively stable local word shapes, but still showed repeated sentence patterns.
+- Top-k 20: provided the preferred balance for the next model experiment, with more varied continuations than 5/10 and fewer highly fragmented speaker-like artifacts than 40.
+- Top-k 40: increased structural and lexical variety, including questions and speaker-like labels, but also introduced more unstable invented words.
+- No top-k filtering: produced exactly the same sampled text as top-k 40 for this seed. This does not make the settings equivalent; it indicates the excluded tail probability did not alter this particular sampling path.
+- Result: overly restrictive top-k causes mode collapse and repetition. Increasing the candidate set improves diversity but admits less stable continuations. Top-k 20 is selected as a controlled engineering choice for the next experiment.
+- Representative contrast:
+
+```text
+top-k 1: the the the the the ...
+top-k 5: Thow and the a be madisen and shan and and ...
+top-k 20: This that you whave reand meall and bar bapte ...
+top-k 40: MEXENDHate awick my thand a wize mus ...
+```
+
+- Local artifact: `experiments/generation_samples/e005_top_k_comparison.json`.
+- Next decision: increase context length before model width/depth, because block size 16 restricts the model to approximately 16 characters of usable context.
+
 ## Recording Policy
 
 Record an experiment when at least one meaningful variable or outcome changes, such as:

@@ -72,13 +72,13 @@ def main():
         )
 
     prompt_ids = tokenizer.encode(prompt)
-    temperatures = [0.5, 0.8, 1.1, 1.4]
-    fixed_top_k = generate_config["top_k"]
+    fixed_temperature = 0.8
+    top_k_values = [1, 5, 10, 20, 40, None]
     seed = config_data["seed"]
 
     results = []
 
-    for temperature in temperatures:
+    for top_k in top_k_values:
         torch.manual_seed(seed)
 
         if torch.cuda.is_available():
@@ -94,8 +94,8 @@ def main():
             model=model,
             idx=idx,
             max_new_tokens=generate_config["max_new_tokens"],
-            temperature=temperature,
-            top_k=fixed_top_k,
+            temperature=fixed_temperature,
+            top_k=top_k,
         )
 
         generated_text = tokenizer.decode(
@@ -103,16 +103,16 @@ def main():
         )
 
         result = {
-            "temperature": temperature,
-            "top_k": fixed_top_k,
+            "temperature": fixed_temperature,
+            "top_k": top_k,
             "text": generated_text,
         }
         results.append(result)
 
         print("\n" + "=" * 70)
         print(
-            f"temperature={temperature}, "
-            f"top_k={fixed_top_k}"
+            f"temperature={fixed_temperature}, "
+            f"top_k={top_k}"
         )
         print("=" * 70)
         print(generated_text)
@@ -126,17 +126,17 @@ def main():
 
     output_path = (
         output_dir
-        / "e004_temperature_comparison.json"
+        / "e005_top_k_comparison.json"
     )
 
     experiment_data = {
-        "experiment": "E004",
+        "experiment": "E005",
         "checkpoint_run": run_name,
         "checkpoint_step": checkpoint["step"],
         "prompt": prompt,
         "seed": seed,
         "max_new_tokens": generate_config["max_new_tokens"],
-        "fixed_top_k": fixed_top_k,
+        "fixed_temperature": fixed_temperature,
         "results": results,
     }
 

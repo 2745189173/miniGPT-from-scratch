@@ -4,7 +4,7 @@ A from-scratch implementation of a small Decoder-only Transformer language model
 
 ## Current Version
 
-`v0.3` adds end-to-end training, best-checkpoint selection, and autoregressive text generation.
+`v0.5` adds reproducible experiment tracking, isolated artifacts, loss visualization, and controlled decoding comparisons.
 
 It includes:
 
@@ -25,6 +25,8 @@ It includes:
 - periodic train and validation loss estimation
 - best-validation checkpoint saving and loading
 - autoregressive generation with temperature and top-k sampling
+- run-isolated checkpoints, histories, plots, and generation samples
+- controlled temperature and top-k comparison experiments
 
 The current toy corpus is intentionally tiny, so generated text demonstrates the complete pipeline rather than strong language quality.
 
@@ -57,7 +59,7 @@ This project aims to implement the core mechanisms of GPT-style language models 
 - [x] Autoregressive text generation
 - [x] Temperature and top-k sampling
 - [x] Loss curve visualization
-- [ ] Decoding strategy comparison
+- [x] Decoding strategy comparison
 - [ ] KV cache benchmark
 - [ ] Ablation study
 
