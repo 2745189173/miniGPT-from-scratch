@@ -156,6 +156,8 @@ Meaningful training and generation runs are summarized in [experiments/EXPERIMEN
 
 The final design, results, limitations, and completion scope are summarized in [report/technical_report.md](report/technical_report.md).
 
+A Chinese narrative of the complete learning process, decisions, mistakes, and milestones is available in [docs/PROJECT_JOURNEY.md](docs/PROJECT_JOURNEY.md).
+
 ## Experiment Artifacts
 
 Set `experiment.run_name` in `configs/tiny.yaml` before training. Checkpoints and loss artifacts are isolated by that name:
