@@ -4,7 +4,7 @@ A from-scratch implementation of a small Decoder-only Transformer language model
 
 ## Current Version
 
-`v0.8` adds checkpoint-compatible embedding/output weight tying and records its controlled character-level ablation.
+`v0.9` adds an educational byte-level BPE tokenizer with deterministic training, encoding, decoding, persistence, and round-trip checks.
 
 It includes:
 
@@ -33,6 +33,8 @@ It includes:
 - backward-compatible loading of legacy ReLU checkpoints
 - optional token-embedding/language-head weight tying with shared storage checks
 - backward-compatible loading of legacy untied checkpoints
+- character-level and byte-level BPE tokenizer implementations
+- BPE compression, mixed-language round-trip, save, and load checks
 
 The current toy corpus is intentionally tiny, so generated text demonstrates the complete pipeline rather than strong language quality.
 
@@ -66,6 +68,8 @@ This project aims to implement the core mechanisms of GPT-style language models 
 - [x] Temperature and top-k sampling
 - [x] Loss curve visualization
 - [x] Decoding strategy comparison
+- [x] Byte-level BPE tokenizer core
+- [ ] BPE training and generation integration
 - [ ] KV cache benchmark
 - [ ] Ablation study
 

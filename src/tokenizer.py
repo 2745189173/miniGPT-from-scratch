@@ -1,5 +1,18 @@
 import json
-from typing import List
+from typing import List, Protocol
+
+
+class Tokenizer(Protocol):
+    vocab_size: int
+
+    def encode(self, text: str) -> List[int]:
+        ...
+
+    def decode(self, ids: List[int]) -> str:
+        ...
+
+    def save(self, path: str) -> None:
+        ...
 
 
 class CharTokenizer:
