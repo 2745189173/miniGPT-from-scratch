@@ -1,5 +1,6 @@
-from dataclasses import asdict
+import json
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 import torch
@@ -62,9 +63,19 @@ def main():
         config_data = yaml.safe_load(file)
 
     seed = config_data["seed"]
+    run_name = config_data["experiment"]["run_name"]
     data_config = config_data["data"]
     model_config = config_data["model"]
     train_config = config_data["train"]
+
+    if not run_name or not all(
+        character.isalnum() or character in {"-", "_"}
+        for character in run_name
+    ):
+        raise ValueError(
+            "experiment.run_name may contain only letters, numbers, "
+            "hyphens, and underscores."
+        )
 
     torch.manual_seed(seed)
 
@@ -103,10 +114,12 @@ def main():
     checkpoint_dir = PROJECT_ROOT / "experiments" / "checkpoints"
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-    best_checkpoint_path = checkpoint_dir / "best_model.pt"
+    best_checkpoint_path = checkpoint_dir / f"{run_name}.pt"
     best_val_loss = float("inf")
-    best_step = -1    
+    best_step = -1
+    loss_history = []
 
+    print("run name:", run_name)
     print("device:", device)
     print("vocab size:", tokenizer.vocab_size)
     print("train tokens:", len(train_data))
@@ -133,11 +146,19 @@ def main():
                 f"train loss {losses['train']:.4f} | "
                 f"val loss {losses['val']:.4f}"
             )
+            loss_history.append(
+                {
+                    "step": step,
+                    "train_loss": losses["train"],
+                    "val_loss": losses["val"],
+                }
+            )
             if losses["val"] < best_val_loss:
                 best_val_loss = losses["val"]
                 best_step = step
 
                 checkpoint = {
+                    "run_name": run_name,
                     "step": step,
                     "model_state_dict": model.state_dict(),
                     "optimizer_state_dict": optimizer.state_dict(),
@@ -149,6 +170,7 @@ def main():
                     },
                     "train_loss": losses["train"],
                     "val_loss": losses["val"],
+                    "run_config": config_data,
                 }
 
                 torch.save(checkpoint, best_checkpoint_path)
@@ -178,6 +200,16 @@ def main():
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
         optimizer.step()
+
+    loss_curve_dir = PROJECT_ROOT / "experiments" / "loss_curves"
+    loss_curve_dir.mkdir(parents=True, exist_ok=True)
+
+    loss_history_path = loss_curve_dir / f"{run_name}.json"
+
+    with open(loss_history_path, "w", encoding="utf-8") as file:
+        json.dump(loss_history, file, indent=2)
+
+    print("loss history:", loss_history_path)
 
     print("\ntraining completed.")
     print("best step:", best_step)

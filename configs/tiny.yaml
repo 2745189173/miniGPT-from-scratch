@@ -1,5 +1,8 @@
 seed: 1337
 
+experiment:
+  run_name: e002_shakespeare_baseline
+
 data:
   input_path: data/raw/input.txt
 
@@ -20,7 +23,6 @@ train:
   device: cuda
 
 generate:
-  checkpoint_path: experiments/checkpoints/best_model.pt
   prompt: "the"
   max_new_tokens: 300
   temperature: 0.8

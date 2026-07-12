@@ -8,7 +8,7 @@ def load_text(path: str) -> str:
     """Load raw text data from a txt file."""
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
-    
+
 def build_dataset(
         text: str,
         tokenizer: CharTokenizer,
@@ -16,7 +16,7 @@ def build_dataset(
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Convert raw text into token ids and split it into train / validation sets.
-    
+
     Returns:
         train_data: shape [num_train_tokens]
         val_data: shape [num_val_tokens]
@@ -38,16 +38,16 @@ def get_batch(
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Randomly sample a batch of input-target sequences.
-    
+
     Example:
         If the original token sequence is:
         [0, 1, 2, 3, 4, 5]
-        
+
         and block_size = 4,
-        
+
         x = [0, 1, 2, 3]
         y = [1, 2, 3, 4]
-        
+
     Shapes:
         x: [batch_size, block_size]
         y: [batch_size, block_size]
@@ -57,7 +57,7 @@ def get_batch(
             f"Data length must be larger than block_size."
             f"Got len(data)={len(data)}, block_size={block_size}"
         )
-    
+
     ix = torch.randint(0, len(data)-block_size, (batch_size,))  # [B]
 
     x = torch.stack([data[i: i + block_size] for i in ix])  # [B, T]

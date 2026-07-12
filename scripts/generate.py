@@ -20,6 +20,7 @@ def main():
 
     train_config = config_data["train"]
     generate_config = config_data["generate"]
+    run_name = config_data["experiment"]["run_name"]
 
     requested_device = train_config["device"]
     if requested_device == "cuda" and not torch.cuda.is_available():
@@ -30,7 +31,10 @@ def main():
     torch.manual_seed(config_data["seed"])
 
     checkpoint_path = (
-        PROJECT_ROOT / generate_config["checkpoint_path"]
+        PROJECT_ROOT
+        / "experiments"
+        / "checkpoints"
+        / f"{run_name}.pt"
     )
 
     checkpoint = torch.load(
@@ -87,6 +91,7 @@ def main():
         generated_ids[0].tolist()
     )
 
+    print("run name:", run_name)
     print("checkpoint step:", checkpoint["step"])
     print("checkpoint val loss:", checkpoint["val_loss"])
     print("device:", device)

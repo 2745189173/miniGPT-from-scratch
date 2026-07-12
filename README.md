@@ -56,7 +56,7 @@ This project aims to implement the core mechanisms of GPT-style language models 
 - [x] Validation loss and checkpoint saving
 - [x] Autoregressive text generation
 - [x] Temperature and top-k sampling
-- [ ] Loss curve visualization
+- [x] Loss curve visualization
 - [ ] Decoding strategy comparison
 - [ ] KV cache benchmark
 - [ ] Ablation study
@@ -64,3 +64,17 @@ This project aims to implement the core mechanisms of GPT-style language models 
 ## Why this project matters
 
 This project is designed to demonstrate a bottom-up understanding of Decoder-only Transformer language models, rather than simply using existing high-level frameworks.
+
+Meaningful training and generation runs are summarized in [experiments/EXPERIMENT_LOG.md](experiments/EXPERIMENT_LOG.md).
+
+## Experiment Artifacts
+
+Set `experiment.run_name` in `configs/tiny.yaml` before training. Checkpoints and loss artifacts are isolated by that name:
+
+```text
+experiments/checkpoints/<run_name>.pt
+experiments/loss_curves/<run_name>.json
+experiments/loss_curves/<run_name>.png
+```
+
+`scripts/generate.py` and `experiments/loss_curves.py` use the active run name from the config. A different recorded curve can also be rendered with `python experiments/loss_curves.py --run-name <run_name>`.
