@@ -4,7 +4,7 @@ A from-scratch implementation of a small Decoder-only Transformer language model
 
 ## Current Version
 
-`v0.2` implements the complete Decoder-only Transformer architecture.
+`v0.3` adds end-to-end training, best-checkpoint selection, and autoregressive text generation.
 
 It includes:
 
@@ -21,8 +21,12 @@ It includes:
 - language-modeling head
 - next-token cross-entropy loss
 - modular sanity checks for data, attention, blocks, and model forward pass
+- YAML-driven AdamW training loop
+- periodic train and validation loss estimation
+- best-validation checkpoint saving and loading
+- autoregressive generation with temperature and top-k sampling
 
-Training and autoregressive text generation are not implemented yet.
+The current toy corpus is intentionally tiny, so generated text demonstrates the complete pipeline rather than strong language quality.
 
 ## Project Goal
 
@@ -48,7 +52,10 @@ This project aims to implement the core mechanisms of GPT-style language models 
 - [x] Causal self-attention
 - [x] Multi-head attention
 - [x] Transformer block
-- [ ] Training loop
+- [x] Training loop
+- [x] Validation loss and checkpoint saving
+- [x] Autoregressive text generation
+- [x] Temperature and top-k sampling
 - [ ] Loss curve visualization
 - [ ] Decoding strategy comparison
 - [ ] KV cache benchmark
