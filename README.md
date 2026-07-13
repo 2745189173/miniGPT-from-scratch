@@ -187,7 +187,6 @@ scripts/      data download, tokenizer training, model training, and checks
 configs/      final BPE and character-baseline configurations
 experiments/  comparisons, plots, generation experiments, and experiment log
 artifacts/    tracked deterministic BPE merge rules
-docs/         Chinese project journey
 report/       final technical report
 ```
 
@@ -198,8 +197,6 @@ This project is designed to demonstrate a bottom-up understanding of Decoder-onl
 Meaningful training and generation runs are summarized in [experiments/EXPERIMENT_LOG.md](experiments/EXPERIMENT_LOG.md).
 
 The final design, results, limitations, and completion scope are summarized in [report/technical_report.md](report/technical_report.md).
-
-A Chinese narrative of the complete learning process, decisions, mistakes, and milestones is available in [docs/PROJECT_JOURNEY.md](docs/PROJECT_JOURNEY.md).
 
 ## Experiment Artifacts
 

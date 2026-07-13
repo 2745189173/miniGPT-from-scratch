@@ -188,16 +188,13 @@ scripts/      数据下载、tokenizer 训练、模型训练和检查脚本
 configs/      最终 BPE 和字符 baseline 配置
 experiments/  对比脚本、可视化脚本和实验日志
 artifacts/    tracked BPE merge rules
-docs/         中文项目历程和面试指南
 report/       最终技术报告
 ```
 
 ## 项目资料
 
-- [完整项目历程](docs/PROJECT_JOURNEY.md)：动机、学习过程、踩坑、决策和版本演进。
 - [实验日志](experiments/EXPERIMENT_LOG.md)：E001-E012 的配置、指标和结论。
 - [技术报告](report/technical_report.md)：最终架构、对比结果、限制和范围。
-- [面试指南](docs/INTERVIEW_GUIDE.zh-CN.md)：项目介绍、重点实验和常见追问。
 
 ## 项目边界
 
