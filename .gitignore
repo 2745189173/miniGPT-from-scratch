@@ -11,6 +11,8 @@ __pycache__/
 data/raw/
 data/processed/
 
+docs/PROJECT_JOURNEY.md
+
 experiments/checkpoints/
 experiments/loss_curves/
 experiments/generation_samples/
