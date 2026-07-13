@@ -1,5 +1,7 @@
 # miniGPT-from-scratch
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 A small Decoder-only Transformer language model built from first principles in
 PyTorch, including byte-level BPE tokenization, training, resumable checkpoints,
 generation, and controlled experiments.
@@ -10,7 +12,8 @@ replacement for a broadly pretrained language model.
 
 ## Current Version
 
-`v1.0.1` completes the intended learning scope and public-release polish. The final model is trained on Tiny
+`v1.0.1` completes the intended learning scope and public-release polish. The
+final model is trained on Tiny
 Shakespeare with a learned 512-token byte-level BPE vocabulary.
 
 ## Highlights
